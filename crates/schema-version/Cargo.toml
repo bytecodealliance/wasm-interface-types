@@ -3,3 +3,7 @@ name = "wit-schema-version"
 version = "0.1.0"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
 edition = "2018"
+
+[lib]
+test = false
+doctest = false

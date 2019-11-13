@@ -5,7 +5,7 @@ authors = ["Alex Crichton <alex@alexcrichton.com>"]
 edition = "2018"
 
 [dependencies]
-wast = "3.0"
+wast = { git = 'https://github.com/bytecodealliance/wat' }
 anyhow = "1.0"
 leb128 = "0.2"
 wit-schema-version = { path = "../schema-version" }

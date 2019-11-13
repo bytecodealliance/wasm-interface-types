@@ -61,7 +61,6 @@ fn stringify(bytes: &[u8]) -> anyhow::Result<String> {
                         push_ty(&mut ret, param);
                         ret.push_str(")");
                     }
-
                     for result in ty.results.iter() {
                         ret.push_str(" (result ");
                         push_ty(&mut ret, result);

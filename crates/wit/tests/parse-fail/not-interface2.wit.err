@@ -1,0 +1,5 @@
+unexpected token, expected one of: `type`, `import`, `export`, `func`
+     --> tests/parse-fail/not-interface2.wit:3:15
+      |
+    3 |   (@interface foo))
+      |               ^

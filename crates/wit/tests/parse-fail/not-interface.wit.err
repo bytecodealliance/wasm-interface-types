@@ -1,0 +1,5 @@
+expected `(`
+     --> tests/parse-fail/not-interface.wit:1:1
+      |
+    1 | x
+      | ^

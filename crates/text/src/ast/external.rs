@@ -35,7 +35,12 @@ pub struct Export<'a> {
 
 impl<'a> Parse<'a> for Export<'a> {
     fn parse(parser: Parser<'a>) -> Result<Export<'a>> {
-        drop(parser);
-        panic!()
+        parser.parse::<kw::export>()?;
+        let name = parser.parse()?;
+        let func = parser.parens(|parser| {
+            parser.parse::<kw::func>()?;
+            parser.parse()
+        })?;
+        Ok(Export { name, func })
     }
 }

@@ -61,6 +61,6 @@ instructions! {
     pub enum Instruction<'a> {
         ArgGet(wast::Index<'a>) : [0x00] : "arg.get",
         CallCore(wast::Index<'a>) : [0x01] : "call-core",
-        Other : [0x02] : "other",
+        End : [0x02] : "end",
     }
 }

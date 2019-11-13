@@ -1,0 +1,6 @@
+(module
+  (@interface func)
+  (@interface func (param $foo string)
+    arg.get $foo
+  )
+)

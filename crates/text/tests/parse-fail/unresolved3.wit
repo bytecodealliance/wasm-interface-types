@@ -1,0 +1,2 @@
+(module
+  (@interface import "x" "y" (func (type $foo))))

@@ -1,0 +1,2 @@
+(module
+  (@interface func (type $foo)))

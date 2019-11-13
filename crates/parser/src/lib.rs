@@ -316,18 +316,46 @@ pub struct Func<'a> {
 
 impl<'a> Parse<'a> for Func<'a> {
     fn parse(parser: &mut Parser<'a>) -> Result<Func<'a>> {
+        let bytes = parser.parse::<&[u8]>()?;
+        let mut parser = Parser {
+            bytes,
+            pos: parser.pos - bytes.len(),
+        };
         Ok(Func {
             ty: parser.parse()?,
-            parser: parser.clone(),
+            parser,
         })
     }
 }
 
-// impl<'a> Func<'a> {
-//     pub fn instrs(&mut self) -> Result<List<'a, Instruction>> {
-//         self.parser.parse()
-//     }
-// }
+impl<'a> Func<'a> {
+    pub fn instrs(&self) -> Instructions<'a> {
+        Instructions {
+            parser: self.parser.clone(),
+        }
+    }
+}
+
+pub struct Instructions<'a> {
+    parser: Parser<'a>,
+}
+
+impl<'a> Iterator for Instructions<'a> {
+    type Item = Result<Instruction>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.parser.parse() {
+            Ok(Instruction::End) => {
+                if self.parser.is_empty() {
+                    None
+                } else {
+                    Some(Err(self.parser.error(ErrorKind::TrailingBytes)))
+                }
+            }
+            other => Some(other),
+        }
+    }
+}
 
 macro_rules! instructions {
     (pub enum Instruction {
@@ -370,6 +398,7 @@ instructions! {
     pub enum Instruction {
         ArgGet(u32) = 0x00,
         CallCore(u32) = 0x01,
+        End = 0x02,
     }
 }
 

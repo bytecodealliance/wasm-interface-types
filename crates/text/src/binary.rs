@@ -147,12 +147,17 @@ impl Encode for Export<'_> {
 
 impl Encode for Func<'_> {
     fn encode(&self, e: &mut Vec<u8>) {
+        let mut tmp = Vec::new();
         assert!(self.export.is_none());
-        self.ty.encode(e);
+        self.ty.encode(&mut tmp);
         let instrs = match &self.kind {
             FuncKind::Inline { instrs } => instrs,
             FuncKind::Import { .. } => panic!("imports should be de-inlined"),
         };
-        instrs.encode(e);
+        for instr in instrs {
+            instr.encode(&mut tmp);
+        }
+        Instruction::End.encode(&mut tmp);
+        tmp.encode(e);
     }
 }

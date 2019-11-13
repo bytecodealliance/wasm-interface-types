@@ -83,8 +83,31 @@ fn stringify(bytes: &[u8]) -> anyhow::Result<String> {
                     ret.push_str(")))\n");
                 }
             }
-            Section::Export(t) => panic!(),
-            Section::Func(t) => panic!(),
+            Section::Export(exports) => {
+                for e in exports {
+                    let e = e.context("failed to parse export")?;
+                    ret.push_str("(@interface export ");
+                    ret.push_str("\"");
+                    ret.push_str(e.name);
+                    ret.push_str("\" (func ");
+                    ret.push_str(&format!("{}", e.func));
+                    ret.push_str("))\n");
+                }
+            }
+            Section::Func(funcs) => {
+                for f in funcs {
+                    let f = f.context("failed to parse func")?;
+                    ret.push_str("(@interface func (type ");
+                    ret.push_str(&format!("{}", f.ty));
+                    ret.push_str(")");
+                    for instr in f.instrs() {
+                        let instr = instr.context("failed to parse instruction")?;
+                        ret.push_str("\n  ");
+                        push_instr(&mut ret, &instr);
+                    }
+                    ret.push_str(")\n");
+                }
+            }
         }
     }
     return Ok(ret);
@@ -102,6 +125,17 @@ fn stringify(bytes: &[u8]) -> anyhow::Result<String> {
             ValType::F32 => ret.push_str("f32"),
             ValType::F64 => ret.push_str("f64"),
             ValType::String => ret.push_str("string"),
+        }
+    }
+
+    fn push_instr(ret: &mut String, instr: &Instruction) {
+        use std::fmt::Write;
+        use Instruction::*;
+
+        match instr {
+            ArgGet(i) => write!(ret, "arg.get {}", i).unwrap(),
+            CallCore(i) => write!(ret, "call-core {}", i).unwrap(),
+            End => ret.push_str("end"),
         }
     }
 }

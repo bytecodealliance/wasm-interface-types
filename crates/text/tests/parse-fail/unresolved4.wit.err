@@ -1,0 +1,5 @@
+failed to find func named `$foo`
+     --> tests/parse-fail/unresolved4.wit:3:15
+      |
+    3 |     call-core $foo))
+      |               ^

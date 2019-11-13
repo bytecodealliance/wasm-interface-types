@@ -1,0 +1,5 @@
+failed to find type named `$foo`
+     --> tests/parse-fail/unresolved3.wit:2:42
+      |
+    2 |   (@interface import "x" "y" (func (type $foo))))
+      |                                          ^

@@ -55,7 +55,7 @@ fn stringify(bytes: &[u8]) -> anyhow::Result<String> {
             Section::Type(types) => {
                 for ty in types {
                     let ty = ty.context("failed to parse type")?;
-                    ret.push_str("(@interface type");
+                    ret.push_str("(@interface type (func");
                     for param in ty.params.iter() {
                         ret.push_str(" (param ");
                         push_ty(&mut ret, param);
@@ -67,10 +67,22 @@ fn stringify(bytes: &[u8]) -> anyhow::Result<String> {
                         push_ty(&mut ret, result);
                         ret.push_str(")");
                     }
-                    ret.push_str(")\n");
+                    ret.push_str("))\n");
                 }
             }
-            Section::Import(t) => panic!(),
+            Section::Import(imports) => {
+                for i in imports {
+                    let i = i.context("failed to parse import")?;
+                    ret.push_str("(@interface import ");
+                    ret.push_str("\"");
+                    ret.push_str(i.module);
+                    ret.push_str("\" \"");
+                    ret.push_str(i.name);
+                    ret.push_str("\" (func (type ");
+                    ret.push_str(&format!("{}", i.ty));
+                    ret.push_str(")))\n");
+                }
+            }
             Section::Export(t) => panic!(),
             Section::Func(t) => panic!(),
         }

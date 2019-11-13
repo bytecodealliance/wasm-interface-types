@@ -5,10 +5,7 @@ mod expand;
 mod names;
 mod tyexpand;
 
-pub fn resolve<'a>(
-    adapters: &mut Vec<Adapter<'a>>,
-    names: &wast::Names<'a>,
-) -> Result<(), Error> {
+pub fn resolve<'a>(adapters: &mut Vec<Adapter<'a>>, names: &wast::Names<'a>) -> Result<(), Error> {
     // Expanding inline import/export annotations
     let mut expander = expand::Expander::default();
     expander.process(adapters, expand::Expander::deinline_import);

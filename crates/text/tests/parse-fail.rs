@@ -5,10 +5,12 @@
 //! look at the diff!
 
 fn main() {
-    test_helpers::run("tests/parse-fail".as_ref(), "wit.err", |path| {
-        match wit_text::parse_file(path) {
+    test_helpers::run(
+        "tests/parse-fail".as_ref(),
+        "wit.err",
+        |path| match wit_text::parse_file(path) {
             Ok(_) => anyhow::bail!("{} parsed successfully", path.display()),
             Err(e) => Ok(e.to_string() + "\n"),
-        }
-    })
+        },
+    )
 }

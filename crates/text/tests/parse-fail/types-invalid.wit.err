@@ -1,4 +1,4 @@
-expected `)`
+expected `(`
      --> tests/parse-fail/types-invalid.wit:2:20
       |
     2 |   (@interface type foo))

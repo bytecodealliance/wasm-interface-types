@@ -1,4 +1,4 @@
-use wast::parser::{Parse, Parser, Result, Cursor, Peek};
+use wast::parser::{Cursor, Parse, Parser, Peek, Result};
 
 mod external;
 mod func;

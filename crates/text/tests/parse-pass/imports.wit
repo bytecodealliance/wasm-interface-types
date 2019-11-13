@@ -1,0 +1,6 @@
+(module
+  (@interface type $foo (func (param s32)))
+  (@interface import "foo" "bar" (func $foo))
+  (@interface import "foo" "bar" (func $bar (type $foo)))
+  (@interface import "" "" (func (type 0)))
+)

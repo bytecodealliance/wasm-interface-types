@@ -1,10 +1,10 @@
-use std::path::Path;
 use anyhow::Context;
+use std::path::Path;
 use wast::parser::ParseBuffer;
 
+mod ast;
 mod binary;
 mod resolve;
-mod ast;
 pub use ast::*;
 
 pub fn parse_file(file: impl AsRef<Path>) -> anyhow::Result<Vec<u8>> {

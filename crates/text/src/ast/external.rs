@@ -1,4 +1,4 @@
-use crate::ast;
+use crate::ast::{self, kw};
 use wast::parser::{Parse, Parser, Result};
 
 pub struct Import<'a> {
@@ -11,8 +11,20 @@ pub struct Import<'a> {
 
 impl<'a> Parse<'a> for Import<'a> {
     fn parse(parser: Parser<'a>) -> Result<Import<'a>> {
-        drop(parser);
-        panic!()
+        let span = parser.parse::<kw::import>()?.0;
+        let module = parser.parse()?;
+        let name = parser.parse()?;
+        let (id, ty) = parser.parens(|parser| {
+            parser.parse::<kw::func>()?;
+            Ok((parser.parse()?, parser.parse()?))
+        })?;
+        Ok(Import {
+            span,
+            module,
+            name,
+            id,
+            ty,
+        })
     }
 }
 

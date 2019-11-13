@@ -8,6 +8,28 @@ pub struct Type<'a> {
     pub results: Vec<ValType>,
 }
 
+fn finish_parse<'a>(
+    parser: Parser<'a>,
+    params: &mut Vec<(Option<wast::Id<'a>>, ValType)>,
+    results: &mut Vec<ValType>,
+) -> Result<()> {
+    while parser.peek2::<kw::param>() {
+        params.push(parser.parens(|p| {
+            p.parse::<kw::param>()?;
+            let id = p.parse()?;
+            let ty = p.parse()?;
+            Ok((id, ty))
+        })?);
+    }
+    while parser.peek2::<kw::result>() {
+        results.push(parser.parens(|p| {
+            p.parse::<kw::result>()?;
+            p.parse()
+        })?);
+    }
+    Ok(())
+}
+
 impl<'a> Parse<'a> for Type<'a> {
     fn parse(parser: Parser<'a>) -> Result<Type<'a>> {
         parser.parse::<kw::r#type>()?;
@@ -15,21 +37,10 @@ impl<'a> Parse<'a> for Type<'a> {
 
         let mut params = Vec::new();
         let mut results = Vec::new();
-
-        while parser.peek2::<kw::param>() {
-            params.push(parser.parens(|p| {
-                p.parse::<kw::param>()?;
-                let id = p.parse()?;
-                let ty = p.parse()?;
-                Ok((id, ty))
-            })?);
-        }
-        while parser.peek2::<kw::result>() {
-            results.push(parser.parens(|p| {
-                p.parse::<kw::result>()?;
-                p.parse()
-            })?);
-        }
+        parser.parens(|p| {
+            p.parse::<kw::func>()?;
+            finish_parse(parser, &mut params, &mut results)
+        })?;
 
         Ok(Type {
             name,
@@ -59,47 +70,47 @@ impl<'a> Parse<'a> for ValType {
         let mut l = parser.lookahead1();
         if l.peek::<kw::s8>() {
             parser.parse::<kw::s8>()?;
-            return Ok(ValType::S8)
+            return Ok(ValType::S8);
         }
         if l.peek::<kw::s16>() {
             parser.parse::<kw::s16>()?;
-            return Ok(ValType::S16)
+            return Ok(ValType::S16);
         }
         if l.peek::<kw::s32>() {
             parser.parse::<kw::s32>()?;
-            return Ok(ValType::S32)
+            return Ok(ValType::S32);
         }
         if l.peek::<kw::s64>() {
             parser.parse::<kw::s64>()?;
-            return Ok(ValType::S64)
+            return Ok(ValType::S64);
         }
         if l.peek::<kw::u8>() {
             parser.parse::<kw::u8>()?;
-            return Ok(ValType::U8)
+            return Ok(ValType::U8);
         }
         if l.peek::<kw::u16>() {
             parser.parse::<kw::u16>()?;
-            return Ok(ValType::U16)
+            return Ok(ValType::U16);
         }
         if l.peek::<kw::u32>() {
             parser.parse::<kw::u32>()?;
-            return Ok(ValType::U32)
+            return Ok(ValType::U32);
         }
         if l.peek::<kw::u64>() {
             parser.parse::<kw::u64>()?;
-            return Ok(ValType::U64)
+            return Ok(ValType::U64);
         }
         if l.peek::<kw::f32>() {
             parser.parse::<kw::f32>()?;
-            return Ok(ValType::F32)
+            return Ok(ValType::F32);
         }
         if l.peek::<kw::f64>() {
             parser.parse::<kw::f64>()?;
-            return Ok(ValType::F64)
+            return Ok(ValType::F64);
         }
         if l.peek::<kw::string>() {
             parser.parse::<kw::string>()?;
-            return Ok(ValType::String)
+            return Ok(ValType::String);
         }
         Err(l.error())
     }
@@ -110,4 +121,34 @@ pub struct TypeUse<'a> {
     pub index_span: Option<wast::Span>,
     pub index: Option<wast::Index<'a>>,
     pub ty: Type<'a>,
+}
+
+impl<'a> Parse<'a> for TypeUse<'a> {
+    fn parse(parser: Parser<'a>) -> Result<Self> {
+        let index = if parser.peek2::<kw::r#type>() {
+            Some(parser.parens(|parser| {
+                parser.parse::<kw::r#type>()?;
+                Ok((parser.cur_span(), parser.parse()?))
+            })?)
+        } else {
+            None
+        };
+        let (index_span, index) = match index {
+            Some((a, b)) => (Some(a), Some(b)),
+            None => (None, None),
+        };
+        let mut params = Vec::new();
+        let mut results = Vec::new();
+        finish_parse(parser, &mut params, &mut results)?;
+
+        Ok(TypeUse {
+            index,
+            index_span,
+            ty: Type {
+                name: None,
+                params,
+                results,
+            },
+        })
+    }
 }

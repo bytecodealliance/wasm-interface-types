@@ -4,6 +4,8 @@
 
 A Rust parser and decoder for the [WebAssembly Interface Types][wit] proposal.
 
+[wit]: https://github.com/webassembly/interface-types
+
 ## About
 
 This project is a work-in-progress. The official proposal itself has neither an

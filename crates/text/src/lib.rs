@@ -2,6 +2,8 @@ use std::path::Path;
 use anyhow::Context;
 use wast::parser::ParseBuffer;
 
+mod binary;
+mod resolve;
 mod ast;
 pub use ast::*;
 
@@ -31,6 +33,6 @@ fn _parse_str(wat: &str) -> Result<Vec<u8>, wast::Error> {
         err
     };
     let buf = ParseBuffer::new(&wat).map_err(adjust)?;
-    let ast = wast::parser::parse::<Wit>(&buf).map_err(adjust)?;
-    panic!()
+    let mut ast = wast::parser::parse::<Wit>(&buf).map_err(adjust)?;
+    ast.module.encode().map_err(adjust)
 }

@@ -17,6 +17,16 @@ pub struct Module<'a> {
     pub adapters: Vec<Adapter<'a>>,
 }
 
+impl Module<'_> {
+    pub fn encode(&mut self) -> std::result::Result<Vec<u8>, wast::Error> {
+        let names = self.core.resolve()?;
+        crate::resolve::resolve(&mut self.adapters, &names)?;
+        let mut core = self.core.encode()?;
+        core.extend_from_slice(&crate::binary::encode(&self.adapters));
+        Ok(core)
+    }
+}
+
 impl<'a> Parse<'a> for Module<'a> {
     fn parse(parser: Parser<'a>) -> Result<Module<'a>> {
         let span = parser.parse::<kw::module>()?.0;

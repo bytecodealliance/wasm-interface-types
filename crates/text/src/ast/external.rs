@@ -2,7 +2,10 @@ use crate::ast;
 use wast::parser::{Parse, Parser, Result};
 
 pub struct Import<'a> {
-    pub name: Option<wast::Id<'a>>,
+    pub span: wast::Span,
+    pub id: Option<wast::Id<'a>>,
+    pub module: &'a str,
+    pub name: &'a str,
     pub ty: ast::TypeUse<'a>,
 }
 
@@ -14,7 +17,7 @@ impl<'a> Parse<'a> for Import<'a> {
 }
 
 pub struct Export<'a> {
-    pub func: wast::Id<'a>,
+    pub func: wast::Index<'a>,
     pub name: &'a str,
 }
 

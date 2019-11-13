@@ -5,7 +5,7 @@ pub struct Func<'a> {
     pub span: wast::Span,
     pub name: Option<wast::Id<'a>>,
     pub export: Option<&'a str>,
-    pub ty: ast::Type<'a>,
+    pub ty: ast::TypeUse<'a>,
     pub kind: FuncKind<'a>,
 }
 
@@ -15,7 +15,7 @@ pub enum FuncKind<'a> {
         name: &'a str,
     },
     Inline {
-        expr: Vec<ast::Instruction<'a>>,
+        instrs: Vec<ast::Instruction<'a>>,
     },
 }
 

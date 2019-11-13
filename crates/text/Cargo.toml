@@ -1,5 +1,5 @@
 [package]
-name = "wit"
+name = "wit-text"
 version = "0.1.0"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
 edition = "2018"
@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 wast = "3.0"
 anyhow = "1.0"
+leb128 = "0.2"
 
 [dev-dependencies]
 rayon = "1.0"

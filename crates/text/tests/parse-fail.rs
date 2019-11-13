@@ -47,7 +47,7 @@ fn main() {
 }
 
 fn run_test(test: &Path, bless: bool) -> anyhow::Result<()> {
-    let err = match wit::parse_file(test) {
+    let err = match wit_text::parse_file(test) {
         Ok(_) => anyhow::bail!("{} parsed successfully", test.display()),
         Err(e) => e.to_string() + "\n",
     };

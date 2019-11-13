@@ -1,0 +1,5 @@
+expected `)`
+     --> tests/parse-fail/types-wrong-order.wit:2:32
+      |
+    2 |   (@interface type (result s8) (param u8)))
+      |                                ^

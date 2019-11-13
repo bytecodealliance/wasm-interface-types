@@ -1,0 +1,10 @@
+[package]
+name = "wit-parser"
+version = "0.1.0"
+authors = ["Alex Crichton <alex@alexcrichton.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+leb128 = "0.2"
+wit-schema-version = { path = "../schema-version" }

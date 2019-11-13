@@ -8,10 +8,17 @@ edition = "2018"
 wast = "3.0"
 anyhow = "1.0"
 leb128 = "0.2"
+wit-schema-version = { path = "../schema-version" }
 
 [dev-dependencies]
-rayon = "1.0"
+test-helpers = { path = "../test-helpers" }
+wasmparser = "0.39"
+wit-parser = { path = "../parser" }
 
 [[test]]
 name = "parse-fail"
+harness = false
+
+[[test]]
+name = "parse-pass"
 harness = false

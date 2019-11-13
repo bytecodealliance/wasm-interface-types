@@ -19,7 +19,8 @@ pub fn encode(adapters: &[Adapter<'_>]) -> Vec<u8> {
 
     let mut wasm = Vec::new();
     let mut tmp = Vec::new();
-    env!("CARGO_PKG_VERSION").encode(&mut wasm);
+    "wasm-interface-types".encode(&mut wasm);
+    wit_schema_version::VERSION.encode(&mut wasm);
     section_list(0, &types, &mut tmp, &mut wasm);
     section_list(1, &imports, &mut tmp, &mut wasm);
     section_list(2, &exports, &mut tmp, &mut wasm);
@@ -38,7 +39,7 @@ pub fn encode(adapters: &[Adapter<'_>]) -> Vec<u8> {
         tmp.encode(dst);
     }
     tmp.truncate(0);
-    tmp.push(0xfe);
+    tmp.push(0);
     wasm.encode(&mut tmp);
 
     return tmp;

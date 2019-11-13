@@ -9,5 +9,9 @@ wast = "3.0"
 
 [workspace]
 members = [
-  'crates/wit',
+  'crates/text',
+  'crates/parser',
 ]
+
+[patch.crates-io]
+wast = { path = '../wat/crates/wast' }

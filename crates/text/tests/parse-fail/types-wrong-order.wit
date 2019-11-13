@@ -1,0 +1,2 @@
+(module
+  (@interface type (result s8) (param u8)))

@@ -27,7 +27,7 @@ pub enum FuncKind<'a> {
 
     /// An inline function definition which contains actual instructions
     #[allow(missing_docs)]
-    Inline { instrs: Vec<ast::Instruction<'a>> },
+    Inline { instrs: ast::Instructions<'a> },
 }
 
 impl<'a> Parse<'a> for Func<'a> {
@@ -51,10 +51,7 @@ impl<'a> Parse<'a> for Func<'a> {
             (parser.parse()?, FuncKind::Import { module, name })
         } else {
             let ty = parser.parse()?;
-            let mut instrs = Vec::new();
-            while !parser.is_empty() {
-                instrs.push(parser.parse()?);
-            }
+            let instrs = parser.parse()?;
             (ty, FuncKind::Inline { instrs })
         };
 
@@ -67,3 +64,21 @@ impl<'a> Parse<'a> for Func<'a> {
         })
     }
 }
+
+/// A list of instructions, possibly in s-expression form
+#[allow(missing_docs)]
+pub struct Instructions<'a> {
+    pub instrs: Vec<ast::Instruction<'a>>,
+}
+
+impl<'a> Parse<'a> for Instructions<'a> {
+    fn parse(parser: Parser<'a>) -> Result<Instructions<'a>> {
+        let mut instrs = Vec::new();
+        while !parser.is_empty() {
+            instrs.push(parser.parse()?);
+        }
+        Ok(Instructions { instrs })
+    }
+}
+
+

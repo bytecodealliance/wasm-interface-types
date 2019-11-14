@@ -8,12 +8,14 @@ pub fn encode(adapters: &[Adapter<'_>]) -> Vec<u8> {
     let mut imports = Vec::new();
     let mut funcs = Vec::new();
     let mut exports = Vec::new();
+    let mut implements = Vec::new();
     for adapter in adapters {
         match adapter {
             Adapter::Type(i) => types.push(i),
             Adapter::Import(i) => imports.push(i),
             Adapter::Func(i) => funcs.push(i),
             Adapter::Export(i) => exports.push(i),
+            Adapter::Implement(i) => implements.push(i),
         }
     }
 
@@ -25,6 +27,7 @@ pub fn encode(adapters: &[Adapter<'_>]) -> Vec<u8> {
     section_list(1, &imports, &mut tmp, &mut wasm);
     section_list(2, &exports, &mut tmp, &mut wasm);
     section_list(3, &funcs, &mut tmp, &mut wasm);
+    section_list(4, &implements, &mut tmp, &mut wasm);
 
     fn section_list<T: Encode>(id: u8, list: &[T], tmp: &mut Vec<u8>, dst: &mut Vec<u8>) {
         if !list.is_empty() {
@@ -154,10 +157,29 @@ impl Encode for Func<'_> {
             FuncKind::Inline { instrs } => instrs,
             FuncKind::Import { .. } => panic!("imports should be de-inlined"),
         };
-        for instr in instrs {
-            instr.encode(&mut tmp);
-        }
-        Instruction::End.encode(&mut tmp);
+        instrs.encode(&mut tmp);
         tmp.encode(e);
+    }
+}
+
+impl Encode for Instructions<'_> {
+    fn encode(&self, e: &mut Vec<u8>) {
+        for instr in self.instrs.iter() {
+            instr.encode(e);
+        }
+        Instruction::End.encode(e);
+    }
+}
+
+impl Encode for Implement<'_> {
+    fn encode(&self, e: &mut Vec<u8>) {
+        match &self.implemented {
+            Implemented::ByIndex(i) => i.encode(e),
+            Implemented::ByName { .. } => panic!("should be `ByIndex`"),
+        }
+        match &self.implementation {
+            Implementation::ByIndex(i) => i.encode(e),
+            Implementation::Inline { .. } => panic!("should be `ByIndex`"),
+        }
     }
 }

@@ -1,0 +1,4 @@
+(module
+  (import "" "" (func))
+  (import "" "" (func))
+  (@interface implement (import "" "") (func 1)))

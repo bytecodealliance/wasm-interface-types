@@ -1,0 +1,5 @@
+failed to find adapter func named `$foo`
+     --> tests/parse-fail/implement5.wit:3:40
+      |
+    3 |   (@interface implement (func 1) (func $foo))
+      |                                        ^

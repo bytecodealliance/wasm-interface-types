@@ -29,7 +29,11 @@ impl Module<'_> {
     /// Encodes this `Module` into its binary form.
     pub fn encode(&mut self) -> std::result::Result<Vec<u8>, wast::Error> {
         let names = self.core.resolve()?;
-        crate::resolve::resolve(&mut self.adapters, &names)?;
+        let core = match &self.core.kind {
+            wast::ModuleKind::Text(list) => &list[..],
+            wast::ModuleKind::Binary(_) => &[],
+        };
+        crate::resolve::resolve(core, &mut self.adapters, &names)?;
         let mut core = self.core.encode()?;
         core.extend_from_slice(&crate::binary::encode(&self.adapters));
         Ok(core)
@@ -65,14 +69,16 @@ impl<'a> Parse<'a> for Module<'a> {
 
 /// List of possible `@interface` adapters that can be listed in a module.
 pub enum Adapter<'a> {
-    /// An interface type definition (function signature)
+    /// An interface type definition (function signature).
     Type(ast::Type<'a>),
-    /// An import definition using interface types as a function signature
+    /// An import definition using interface types as a function signature.
     Import(ast::Import<'a>),
-    /// An export using wasm interface types as a function signature
+    /// An export using wasm interface types as a function signature.
     Export(ast::Export<'a>),
-    /// An adapter function using wasm interface types
+    /// An adapter function using wasm interface types.
     Func(ast::Func<'a>),
+    /// A connection between a core wasm import and an inline defined function.
+    Implement(ast::Implement<'a>),
 }
 
 impl<'a> Parse<'a> for Adapter<'a> {
@@ -90,6 +96,9 @@ impl<'a> Parse<'a> for Adapter<'a> {
         }
         if l.peek::<kw::func>() {
             return Ok(Adapter::Func(parser.parse()?));
+        }
+        if l.peek::<kw::implement>() {
+            return Ok(Adapter::Implement(parser.parse()?));
         }
         Err(l.error())
     }

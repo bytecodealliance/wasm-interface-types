@@ -5,11 +5,15 @@ mod expand;
 mod names;
 mod tyexpand;
 
-pub fn resolve<'a>(adapters: &mut Vec<Adapter<'a>>, names: &wast::Names<'a>) -> Result<(), Error> {
-    // Expanding inline import/export annotations
+pub fn resolve<'a>(
+    core: &[wast::ModuleField<'a>],
+    adapters: &mut Vec<Adapter<'a>>,
+    names: &wast::Names<'a>,
+) -> Result<(), Error> {
+    // Expanding inline annotations
     let mut expander = expand::Expander::default();
-    expander.process(adapters, expand::Expander::deinline_import);
-    expander.process(adapters, expand::Expander::deinline_export);
+    expander.process(adapters, expand::Expander::deinline_import)?;
+    expander.process(adapters, |e, a| e.deinline_non_import(a, core))?;
 
     // Expanding inline type annotations
     let mut cur = 0;

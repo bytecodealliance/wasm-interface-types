@@ -11,8 +11,8 @@ pub enum Ns {
 impl Ns {
     fn desc(&self) -> &'static str {
         match self {
-            Ns::Func => "func",
-            Ns::Type => "type",
+            Ns::Func => "adapter func",
+            Ns::Type => "adapter type",
         }
     }
 }
@@ -57,6 +57,7 @@ impl<'a, 'b> Resolver<'a, 'b> {
                     results: i.results.clone(),
                 });
             }
+            Adapter::Implement(_) => {}
             Adapter::Export(_) => {}
         }
     }
@@ -84,7 +85,7 @@ impl<'a, 'b> Resolver<'a, 'b> {
                     }
 
                     // and then we can resolve the expression!
-                    for instr in instrs {
+                    for instr in instrs.instrs.iter_mut() {
                         resolver.resolve_instr(instr)?;
                     }
                 }
@@ -92,6 +93,16 @@ impl<'a, 'b> Resolver<'a, 'b> {
             }
 
             Adapter::Export(e) => self.resolve_idx(&mut e.func, Ns::Func),
+
+            Adapter::Implement(i) => {
+                if let Implemented::ByIndex(i) = &mut i.implemented {
+                    self.names.resolve_func(i)?;
+                }
+                if let Implementation::ByIndex(i) = &mut i.implementation {
+                    self.resolve_idx(i, Ns::Func)?;
+                }
+                Ok(())
+            }
 
             Adapter::Type(_) => Ok(()),
         }

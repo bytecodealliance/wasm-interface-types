@@ -1,4 +1,4 @@
-failed to find func named `$foo`
+failed to find adapter func named `$foo`
      --> tests/parse-fail/unresolved2.wit:2:32
       |
     2 |   (@interface export "x" (func $foo)))

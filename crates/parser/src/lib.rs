@@ -118,6 +118,7 @@ pub enum Section<'a> {
     Import(Imports<'a>),
     Export(Exports<'a>),
     Func(Funcs<'a>),
+    Implement(Implements<'a>),
 }
 
 impl<'a> Parse<'a> for Section<'a> {
@@ -145,6 +146,10 @@ impl<'a> Parse<'a> for Section<'a> {
             3 => {
                 let cnt = parser.parse()?;
                 Ok(Section::Func(Funcs { parser, cnt }))
+            }
+            4 => {
+                let cnt = parser.parse()?;
+                Ok(Section::Implement(Implements { parser, cnt }))
             }
             n => {
                 parser.pos = id_pos;
@@ -348,6 +353,39 @@ impl<'a> Parse<'a> for Export<'a> {
         Ok(Export {
             func: parser.parse()?,
             name: parser.parse()?,
+        })
+    }
+}
+
+/// An iterator over instances of [`Implement`] in the implement subsection of
+/// a wasm interface types section.
+pub struct Implements<'a> {
+    parser: Parser<'a>,
+    cnt: u32,
+}
+
+impl<'a> Iterator for Implements<'a> {
+    type Item = Result<Implement>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.parser.parse_next_in_section(&mut self.cnt)
+    }
+}
+
+/// An element of the [`Implements`] subsection which is a mapping that connects
+/// a core wasm func to being implemented by an adapter function.
+pub struct Implement {
+    /// The wasm core function which is an import that we're implementing.
+    pub core_func: u32,
+    /// The adapter function that we're implementing with.
+    pub adapter_func: u32,
+}
+
+impl<'a> Parse<'a> for Implement {
+    fn parse(parser: &mut Parser<'a>) -> Result<Implement> {
+        Ok(Implement {
+            core_func: parser.parse()?,
+            adapter_func: parser.parse()?,
         })
     }
 }

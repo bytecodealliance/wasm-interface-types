@@ -107,6 +107,16 @@ fn stringify(bytes: &[u8]) -> anyhow::Result<String> {
                     ret.push_str(")\n");
                 }
             }
+            Section::Implement(implements) => {
+                for i in implements {
+                    let i = i.context("failed to parse implement")?;
+                    ret.push_str("(@interface implement (func ");
+                    ret.push_str(&format!("{}", i.core_func));
+                    ret.push_str(") (func ");
+                    ret.push_str(&format!("{}", i.adapter_func));
+                    ret.push_str("))\n");
+                }
+            }
         }
     }
     return Ok(ret);

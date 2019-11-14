@@ -1,0 +1,4 @@
+(module
+  (func $foo)
+  (@interface implement (func 1) (func $foo))
+)

@@ -1,0 +1,5 @@
+import of `` from `` not found in core module
+     --> tests/parse-fail/implement1.wit:2:15
+      |
+    2 |   (@interface implement (import "" "") (func 1)))
+      |               ^

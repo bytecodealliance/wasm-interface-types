@@ -147,6 +147,25 @@ Here the `ty` is the type signature index, there's then a whole bunch of
 instructions which follow, and the instructions are terminated by the `end`
 instruction.
 
+## Implement Subsection (4)
+
+The implement subsection contains a list of functions to use to implement the
+core module's imports.
+
+```
+implement-subsection : = 0x04 funcs:vec(implement)
+```
+
+where each `implement` is defined as:
+
+```
+implement := core-func:u32 func:u32
+```
+
+Here `core-func` is required to be an import in the core wasm module and `func`
+is a function in the WebAssembly interface types section. Note that `func`'s
+type signature must match `core-func`'s type signature.
+
 ## Instructions
 
 Instruction encodings look like:

@@ -15,6 +15,7 @@ impl<'a> Expander<'a> {
             Adapter::Type(t) => self.register_type(t),
             Adapter::Import(i) => self.expand_import(i),
             Adapter::Func(f) => self.expand_func(f),
+            Adapter::Implement(i) => self.expand_implement(i),
             Adapter::Export(_) => {}
         }
     }
@@ -33,6 +34,12 @@ impl<'a> Expander<'a> {
 
     fn expand_func(&mut self, func: &mut Func<'a>) {
         self.expand_type_use(&mut func.ty);
+    }
+
+    fn expand_implement(&mut self, implement: &mut Implement<'a>) {
+        if let Implementation::Inline { ty, .. } = &mut implement.implementation {
+            self.expand_type_use(ty);
+        }
     }
 
     fn expand_type_use(&mut self, item: &mut TypeUse<'a>) {

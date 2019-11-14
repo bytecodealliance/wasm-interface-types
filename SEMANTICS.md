@@ -24,3 +24,5 @@ This is pretty unstructured, so beware.
 
 * References to the core module are done through indices which are resolved
   relative the to the core module's index spaces.
+
+* Can't implement the same function twice in the `implement` subsection

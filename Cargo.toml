@@ -8,4 +8,5 @@ edition = "2018"
 members = [
   'crates/text',
   'crates/parser',
+  'crates/wit2wasm',
 ]

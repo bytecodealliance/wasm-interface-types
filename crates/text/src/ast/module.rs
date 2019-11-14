@@ -1,7 +1,11 @@
 use crate::ast::{self, kw};
 use wast::parser::{Parse, Parser, Result};
 
+/// A `*.wit` file in its entirety.
+///
+/// This is typically what you're parsing at the top-level.
 pub struct Wit<'a> {
+    /// The module that this `*.wit` file contained.
     pub module: Module<'a>,
 }
 
@@ -12,12 +16,17 @@ impl<'a> Parse<'a> for Wit<'a> {
     }
 }
 
+/// A WebAssembly interface types-enhanced module.
 pub struct Module<'a> {
+    /// The core WebAssembly module which doesn't use interface types.
     pub core: wast::Module<'a>,
+    /// The various `@interface` adapter directives representing the wasm
+    /// interface types of this module.
     pub adapters: Vec<Adapter<'a>>,
 }
 
 impl Module<'_> {
+    /// Encodes this `Module` into its binary form.
     pub fn encode(&mut self) -> std::result::Result<Vec<u8>, wast::Error> {
         let names = self.core.resolve()?;
         crate::resolve::resolve(&mut self.adapters, &names)?;
@@ -54,10 +63,15 @@ impl<'a> Parse<'a> for Module<'a> {
     }
 }
 
+/// List of possible `@interface` adapters that can be listed in a module.
 pub enum Adapter<'a> {
+    /// An interface type definition (function signature)
     Type(ast::Type<'a>),
+    /// An import definition using interface types as a function signature
     Import(ast::Import<'a>),
+    /// An export using wasm interface types as a function signature
     Export(ast::Export<'a>),
+    /// An adapter function using wasm interface types
     Func(ast::Func<'a>),
 }
 

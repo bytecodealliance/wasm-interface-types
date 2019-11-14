@@ -1,10 +1,14 @@
 use crate::ast::kw;
 use wast::parser::{Parse, Parser, Result};
 
+/// A type declaration in a wasm interface type subsection
 #[derive(Clone)]
 pub struct Type<'a> {
+    /// The optional name of this type, used to refer to it from elsewhere.
     pub name: Option<wast::Id<'a>>,
+    /// Explicitly listed parameters with optional names, if any.
     pub params: Vec<(Option<wast::Id<'a>>, ValType)>,
+    /// The results of this function signature.
     pub results: Vec<ValType>,
 }
 
@@ -50,7 +54,9 @@ impl<'a> Parse<'a> for Type<'a> {
     }
 }
 
+/// Possible value types that can be used in function signatures and such.
 #[derive(Clone, PartialEq, Eq, Hash)]
+#[allow(missing_docs)]
 pub enum ValType {
     String,
     S8,
@@ -116,10 +122,14 @@ impl<'a> Parse<'a> for ValType {
     }
 }
 
+/// An inline type definition or a use of a type defined elsewhere.
 #[derive(Clone)]
 pub struct TypeUse<'a> {
+    /// Where the index was defined, if it was defined.
     pub index_span: Option<wast::Span>,
+    /// The type declaration that this is reference.
     pub index: Option<wast::Index<'a>>,
+    /// The inline parameters, if any.
     pub ty: Type<'a>,
 }
 

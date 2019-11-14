@@ -1,11 +1,12 @@
 use wast::parser::{Parse, Parser, Result};
 
 macro_rules! instructions {
-    (pub enum Instruction<'a> {
+    ($(#[$a:meta])* pub enum Instruction<'a> {
         $(
             $name:ident $(($($arg:tt)*))? : [$($binary:tt)*] : $instr:tt,
         )*
     }) => (
+        $(#[$a])*
         pub enum Instruction<'a> {
             $(
                 $name $(( $($arg)* ))?,
@@ -58,6 +59,8 @@ macro_rules! instructions {
 }
 
 instructions! {
+    /// List of instructions in adapter functions.
+    #[allow(missing_docs)]
     pub enum Instruction<'a> {
         ArgGet(wast::Index<'a>) : [0x00] : "arg.get",
         CallCore(wast::Index<'a>) : [0x01] : "call-core",

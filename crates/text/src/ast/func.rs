@@ -1,16 +1,32 @@
 use crate::ast::{self, kw};
 use wast::parser::{Parse, Parser, Result};
 
+/// A definition of an adapter function
 pub struct Func<'a> {
+    /// Where this function was defined
     pub span: wast::Span,
+    /// An optional name used to refer to this function
     pub name: Option<wast::Id<'a>>,
+    /// An optional name that this function is being exported under
     pub export: Option<&'a str>,
+    /// The type that this function has
     pub ty: ast::TypeUse<'a>,
+    /// How this function is defined
     pub kind: FuncKind<'a>,
 }
 
+/// Different flavors of functions that can be defined.
 pub enum FuncKind<'a> {
-    Import { module: &'a str, name: &'a str },
+    /// An sugared `import` declaration.
+    Import {
+        /// Where we're importing from
+        module: &'a str,
+        /// What we're importing
+        name: &'a str,
+    },
+
+    /// An inline function definition which contains actual instructions
+    #[allow(missing_docs)]
     Inline { instrs: Vec<ast::Instruction<'a>> },
 }
 

@@ -1,17 +1,34 @@
+//! A parser for the WebAssembly Interface Types binary section.
+//!
+//! This crates is intended to provide the low-level parsing support for
+//! WebAssembly Interface Types. The official specification has no mention of
+//! the binary encoding, so this is currently an invented format. This will only
+//! work when paired with similar tools using the same format, so this is
+//! unstable and you'll need to be careful about using this. This is not an
+//! official project nor is it a standard, treat it appropriately!
+
+#![deny(missing_docs)]
+
 use std::fmt;
 use std::str;
 
+/// Top-level parser for the WebAssembly Interface Types binary section.
+///
+/// This `Parser` is used to iterate over [`Section`] instances to learn about
+/// each section in the binary format.
 #[derive(Clone)]
 pub struct Parser<'a> {
     bytes: &'a [u8],
     pos: usize,
 }
 
+/// Errors that can happen during parsing.
 #[derive(Debug)]
 pub struct Error {
     inner: Box<ErrorInner>,
 }
 
+/// A convenience typedef with `Error` as the default error.
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 #[derive(Debug)]
@@ -35,6 +52,11 @@ enum ErrorKind {
 }
 
 impl<'a> Parser<'a> {
+    /// Creates a new [`Parser`] from the given binary blob.
+    ///
+    /// Currently the binary blob is expected to be the payload of a custom
+    /// section called `wasm-interface-types`. This will almost surely change in
+    /// the future.
     pub fn new(bytes: &'a [u8]) -> Result<Parser<'a>> {
         let mut parser = Parser { bytes, pos: 0 };
         let version = <&str as Parse>::parse(&mut parser)?;
@@ -45,10 +67,18 @@ impl<'a> Parser<'a> {
         Ok(parser)
     }
 
+    /// Returns if there are no more bytes to parse in this `Parser`, and all
+    /// sections have been read.
     pub fn is_empty(&self) -> bool {
         self.bytes.is_empty()
     }
 
+    /// Attempts to parse the next [`Section`] from this [`Parser`].
+    ///
+    /// Returns an error if this parser cannot be advanced to parse another
+    /// section. Note that the section itself will not be fully parsed, but
+    /// rather it will return a placeholder which be further used to parse the
+    /// contents of the section.
     pub fn section(&mut self) -> Result<Section<'a>> {
         self.parse()
     }
@@ -76,10 +106,13 @@ impl<'a> Parser<'a> {
     }
 }
 
-pub trait Parse<'a>: Sized {
+trait Parse<'a>: Sized {
     fn parse(parser: &mut Parser<'a>) -> Result<Self>;
 }
 
+/// List of various sections that can be found in the WebAssembly Interface
+/// Types section.
+#[allow(missing_docs)]
 pub enum Section<'a> {
     Type(Types<'a>),
     Import(Imports<'a>),
@@ -176,6 +209,8 @@ impl<'a> Parse<'a> for u32 {
     }
 }
 
+/// An iterator over instances of [`Type`] in the type subsection of a wasm
+/// interface types section.
 pub struct Types<'a> {
     parser: Parser<'a>,
     cnt: u32,
@@ -189,8 +224,12 @@ impl<'a> Iterator for Types<'a> {
     }
 }
 
+/// A type signatured reference by imports/functions, very similar to a wasm
+/// type declaration.
 pub struct Type {
+    /// Each of the parameter value types of this type signature.
     pub params: Vec<ValType>,
+    /// Each of the returned value types of this type signature.
     pub results: Vec<ValType>,
 }
 
@@ -207,6 +246,8 @@ impl<'a> Parse<'a> for Type {
     }
 }
 
+/// List of value types supported in wasm interface types
+#[allow(missing_docs)]
 pub enum ValType {
     S8,
     S16,
@@ -240,6 +281,8 @@ impl<'a> Parse<'a> for ValType {
     }
 }
 
+/// An iterator over instances of [`Import`] in the import subsection of a wasm
+/// interface types section.
 pub struct Imports<'a> {
     parser: Parser<'a>,
     cnt: u32,
@@ -253,9 +296,16 @@ impl<'a> Iterator for Imports<'a> {
     }
 }
 
+/// An element of the [`Imports`] subsection which lists where the import comes
+/// from as well as the type signature of the function.
+///
+/// Currently imports are always functions.
 pub struct Import<'a> {
+    /// The wasm module name where this import comes from.
     pub module: &'a str,
+    /// The name of the field from the wasm module that this import comes from.
     pub name: &'a str,
+    /// The type signature of the function that this import represents.
     pub ty: u32,
 }
 
@@ -269,6 +319,8 @@ impl<'a> Parse<'a> for Import<'a> {
     }
 }
 
+/// An iterator over instances of [`Export`] in the export subsection of a wasm
+/// interface types section.
 pub struct Exports<'a> {
     parser: Parser<'a>,
     cnt: u32,
@@ -282,8 +334,12 @@ impl<'a> Iterator for Exports<'a> {
     }
 }
 
+/// An element of the [`Exports`] subsection which lists all exports from wasm
+/// interface types, used to export interface adapters from a module.
 pub struct Export<'a> {
+    /// The wasm interface types function that this export is referencing.
     pub func: u32,
+    /// The name that this export is known by.
     pub name: &'a str,
 }
 
@@ -296,6 +352,8 @@ impl<'a> Parse<'a> for Export<'a> {
     }
 }
 
+/// An iterator over instances of [`Func`] in the function subsection of a wasm
+/// interface types section.
 pub struct Funcs<'a> {
     parser: Parser<'a>,
     cnt: u32,
@@ -309,7 +367,11 @@ impl<'a> Iterator for Funcs<'a> {
     }
 }
 
+/// A element of the [`Funcs`] subsection which represents the body of an
+/// interface adapter, working with wasm interface types rather than core wasm
+/// types.
 pub struct Func<'a> {
+    /// The wasm interface type signature of this function.
     pub ty: u32,
     parser: Parser<'a>,
 }
@@ -329,6 +391,7 @@ impl<'a> Parse<'a> for Func<'a> {
 }
 
 impl<'a> Func<'a> {
+    /// Returns a parser for the instructions of this function.
     pub fn instrs(&self) -> Instructions<'a> {
         Instructions {
             parser: self.parser.clone(),
@@ -336,6 +399,7 @@ impl<'a> Func<'a> {
     }
 }
 
+/// A parser for each [`Instruction`] contained within a [`Func`]
 pub struct Instructions<'a> {
     parser: Parser<'a>,
 }
@@ -363,6 +427,9 @@ macro_rules! instructions {
             $name:ident $(($($arg:tt)*))? = $binary:tt,
         )*
     }) => (
+        /// Operators that can be found in the body of a function in a wasm
+        /// interface types section.
+        #[allow(missing_docs)]
         pub enum Instruction {
             $(
                 $name $(( $($arg)* ))?,

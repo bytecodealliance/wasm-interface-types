@@ -21,3 +21,6 @@ This is pretty unstructured, so beware.
   the wasm interface types section, plus the set of imports from the core wasm
   module, minus the set of `implements` items in the wasm interface types
   section.
+
+* References to the core module are done through indices which are resolved
+  relative the to the core module's index spaces.

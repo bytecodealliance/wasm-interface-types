@@ -7,9 +7,13 @@ keep this up to date!
 ## Custom Section
 
 Currently the wasm interface types binary encoding is encoded into a WebAssembly
-custom section with the name `wasm-interface-types`. Only one of these custom
-sections can appear in the WebAssembly module and the contents of the custom
-section are parsed as below:
+custom section with the name `wasm-interface-types`. A custom section is chosen
+as a temporary stopgap to continue to work with all existing tooling. It's
+imagined that as wasm interface types progressed we'll graduate to a
+full-fledged section.
+
+Only one of these custom sections can appear in the WebAssembly module and the
+contents of the custom section are parsed as below:
 
 
 The layout of the custom section is:

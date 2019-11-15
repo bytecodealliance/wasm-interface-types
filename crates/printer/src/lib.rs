@@ -88,10 +88,14 @@ fn print_wit(printer: &mut Printer, bytes: &[u8]) -> anyhow::Result<()> {
             Section::Implement(implements) => {
                 for i in implements {
                     let i = i.context("failed to parse implement")?;
-                    printer.result_mut().push_str("\n  (@interface implement (func ");
+                    printer
+                        .result_mut()
+                        .push_str("\n  (@interface implement (func ");
                     printer.print_func_idx(i.core_func)?;
                     printer.result_mut().push_str(") (func ");
-                    printer.result_mut().push_str(&format!("{}", i.adapter_func));
+                    printer
+                        .result_mut()
+                        .push_str(&format!("{}", i.adapter_func));
                     printer.result_mut().push_str("))");
                 }
             }

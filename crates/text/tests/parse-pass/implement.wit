@@ -1,5 +1,5 @@
 (module
-  (import "a" "b" (func))
+  (import "a" "b" (func $core))
   (import "b" "c" (func))
   (import "b" "c" (func $bar))
 
@@ -7,6 +7,6 @@
   (@interface implement (func $bar) (func 100))
   (@interface implement (func 0) (func 100))
 
-  (@interface implement (func 0))
+  (@interface implement (func $core))
   (@interface implement (func 0) (param s32))
 )

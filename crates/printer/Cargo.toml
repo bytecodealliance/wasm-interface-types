@@ -1,0 +1,13 @@
+[package]
+name = "wit-printer"
+version = "0.1.0"
+authors = ["Alex Crichton <alex@alexcrichton.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+wasmprinter = { git = 'https://github.com/bytecodealliance/wasmprinter' }
+wit-parser = { path = "../parser" }
+
+[dev-dependencies]
+getopts = "0.2"

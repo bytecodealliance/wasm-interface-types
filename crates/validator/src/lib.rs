@@ -74,7 +74,8 @@ impl<'a> Validator<'a> {
         }
         self.visited = true;
 
-        let mut parser = Parser::new(offset, bytes).context("failed to parse interface types header")?;
+        let mut parser =
+            Parser::new(offset, bytes).context("failed to parse interface types header")?;
 
         while !parser.is_empty() {
             match parser.section().context("failed to read section header")? {
@@ -134,55 +135,71 @@ impl<'a> Validator<'a> {
     }
 
     fn validate_func(&mut self, func: Func<'a>) -> Result<()> {
-        use Instruction::*;
-
         let mut type_stack = mem::replace(&mut self.type_stack, Vec::new());
         self.func.push(func.ty);
         let ty = self.validate_adapter_type_idx(func.ty)?;
 
         for instr in func.instrs() {
-            match instr? {
-                ArgGet(idx) => {
-                    let ty = ty
-                        .params
-                        .get(idx as usize)
-                        .ok_or_else(|| anyhow!("parameter index out of bounds: {}", idx))?;
-                    type_stack.push(*ty);
-                }
-                CallCore(idx) => {
-                    let ty = self.validate_core_func_idx(idx)?.0;
-
-                    for param in ty.params.iter() {
-                        let ty = match type_stack.pop() {
-                            Some(t) => t,
-                            None => bail!("expected {:?} on type stack, found nothing", param),
-                        };
-                        if !tys_match(ty, *param) {
-                            bail!("expected {:?} on type stack, found {:?}", param, ty);
-                        }
-                    }
-
-                    for result in ty.returns.iter() {
-                        type_stack.push(wasm2adapter(*result)?);
-                    }
-                }
-                End => bail!("extra `end` instruction found"),
-            }
+            self.validate_instr(instr?, &ty.params, &mut type_stack)?;
         }
         for result in ty.results.iter() {
-            let ty = match type_stack.pop() {
-                Some(t) => t,
-                None => bail!("expected {:?} on type stack, found nothing", result),
-            };
-            if *result != ty {
-                bail!("expected {:?} on type stack, found {:?}", result, ty);
-            }
+            self.expect_interface(*result, &mut type_stack)?;
         }
         if !type_stack.is_empty() {
             bail!("value stack isn't empty on function exit");
         }
         self.type_stack = type_stack;
         return Ok(());
+    }
+
+    fn validate_instr(
+        &self,
+        instr: Instruction,
+        params: &[ValType],
+        stack: &mut Vec<ValType>,
+    ) -> Result<()> {
+        use Instruction::*;
+        match instr {
+            ArgGet(idx) => {
+                let ty = params
+                    .get(idx as usize)
+                    .ok_or_else(|| anyhow!("parameter index out of bounds: {}", idx))?;
+                stack.push(*ty);
+            }
+            CallCore(idx) => {
+                let ty = self.validate_core_func_idx(idx)?.0;
+                for param in ty.params.iter() {
+                    self.expect_wasm(*param, stack)?;
+                }
+                for result in ty.returns.iter() {
+                    stack.push(wasm2adapter(*result)?);
+                }
+            }
+            End => bail!("extra `end` instruction found"),
+        }
+        Ok(())
+    }
+
+    fn expect_wasm(&self, expected: wasmparser::Type, stack: &mut Vec<ValType>) -> Result<()> {
+        let actual = match stack.pop() {
+            Some(t) => t,
+            None => bail!("expected {:?} on type stack, found nothing", expected),
+        };
+        if !tys_match(actual, expected) {
+            bail!("expected {:?} on type stack, found {:?}", expected, actual);
+        }
+        Ok(())
+    }
+
+    fn expect_interface(&self, expected: ValType, stack: &mut Vec<ValType>) -> Result<()> {
+        let actual = match stack.pop() {
+            Some(t) => t,
+            None => bail!("expected {:?} on type stack, found nothing", expected),
+        };
+        if expected != actual {
+            bail!("expected {:?} on type stack, found {:?}", expected, actual);
+        }
+        Ok(())
     }
 
     fn validate_export(&mut self, export: Export<'a>) -> Result<()> {

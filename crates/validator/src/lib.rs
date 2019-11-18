@@ -213,6 +213,15 @@ impl<'a> Validator<'a> {
                 stack.push(ValType::S32);
                 stack.push(ValType::S32);
             }
+            CallAdapter(idx) => {
+                let ty = self.validate_adapter_func_idx(idx)?;
+                for param in ty.params.iter() {
+                    self.expect_interface(*param, stack)?;
+                }
+                for result in ty.results.iter() {
+                    stack.push(*result);
+                }
+            }
             End => bail!("extra `end` instruction found"),
         }
         Ok(())

@@ -134,7 +134,10 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
             }
             End => ret.result_mut().push_str("end"),
             MemoryToString(mem) => {
-                write!(ret.result_mut(), "memory-to-string {}", mem)?;
+                ret.result_mut().push_str("memory-to-string");
+                if *mem != 0 {
+                    write!(ret.result_mut(), " {}", mem)?;
+                }
             }
             StringToMemory(payload) => {
                 ret.result_mut().push_str("string-to-memory ");
@@ -143,6 +146,7 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
                     write!(ret.result_mut(), " {}", payload.mem)?;
                 }
             }
+            CallAdapter(f) => write!(ret.result_mut(), "call-adapter {}", f)?,
         }
 
         Ok(())

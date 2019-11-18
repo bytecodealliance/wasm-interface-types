@@ -9,9 +9,9 @@
 
 (; CHECK-ALL:
 (module
-  (@interface type (func))
-  (@interface type (func (param string)))
-  (@interface func (type 0))
-  (@interface func (type 1)
+  (@interface type (;0;) (func))
+  (@interface type (;1;) (func (param string)))
+  (@interface func (;0;) (type 0))
+  (@interface func (;1;) (type 1)
     arg.get 0))
 ;)

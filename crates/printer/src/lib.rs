@@ -1,4 +1,5 @@
 use anyhow::Context;
+use std::fmt::Write;
 use std::path::Path;
 use wasmprinter::Printer;
 use wit_parser::*;
@@ -24,13 +25,14 @@ fn _print_bytes(wasm: &[u8]) -> anyhow::Result<String> {
 
 fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Result<()> {
     let mut parser = Parser::new(offset, bytes).context("failed to parse header")?;
+    let mut func = 0;
     while !parser.is_empty() {
         match parser.section().context("failed to parse section")? {
             Section::Type(types) => {
                 let ret = printer.result_mut();
-                for ty in types {
+                for (i, ty) in types.into_iter().enumerate() {
                     let ty = ty.context("failed to parse type")?;
-                    ret.push_str("\n  (@interface type (func");
+                    write!(ret, "\n  (@interface type (;{};) (func", i)?;
                     for param in ty.params.iter() {
                         ret.push_str(" (param ");
                         push_ty(ret, param);
@@ -48,14 +50,13 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
                 let ret = printer.result_mut();
                 for i in imports {
                     let i = i.context("failed to parse import")?;
-                    ret.push_str("\n  (@interface import ");
-                    ret.push_str("\"");
-                    ret.push_str(i.module);
-                    ret.push_str("\" \"");
-                    ret.push_str(i.name);
-                    ret.push_str("\" (func (type ");
-                    ret.push_str(&format!("{}", i.ty));
-                    ret.push_str(")))");
+                    write!(
+                        ret,
+                        "\n  (@interface import \"{}\" \"{}\" \
+                         (func (;{};) (type {})))",
+                        i.module, i.name, func, i.ty,
+                    )?;
+                    func += 1;
                 }
             }
             Section::Export(exports) => {
@@ -71,18 +72,21 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
                 }
             }
             Section::Func(funcs) => {
-                let ret = printer.result_mut();
                 for f in funcs {
                     let f = f.context("failed to parse func")?;
-                    ret.push_str("\n  (@interface func (type ");
-                    ret.push_str(&format!("{}", f.ty));
-                    ret.push_str(")");
+                    write!(
+                        printer.result_mut(),
+                        "\n  (@interface func (;{};) (type {})",
+                        func,
+                        f.ty
+                    )?;
                     for instr in f.instrs() {
                         let instr = instr.context("failed to parse instruction")?;
-                        ret.push_str("\n    ");
-                        push_instr(ret, &instr);
+                        printer.result_mut().push_str("\n    ");
+                        push_instr(printer, &instr)?;
                     }
-                    ret.push_str(")");
+                    printer.result_mut().push_str(")");
+                    func += 1;
                 }
             }
             Section::Implement(implements) => {
@@ -119,14 +123,18 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
         }
     }
 
-    fn push_instr(ret: &mut String, instr: &Instruction) {
-        use std::fmt::Write;
+    fn push_instr(ret: &mut Printer, instr: &Instruction) -> anyhow::Result<()> {
         use Instruction::*;
 
         match instr {
-            ArgGet(i) => write!(ret, "arg.get {}", i).unwrap(),
-            CallCore(i) => write!(ret, "call-core {}", i).unwrap(),
-            End => ret.push_str("end"),
+            ArgGet(i) => write!(ret.result_mut(), "arg.get {}", i)?,
+            CallCore(i) => {
+                ret.result_mut().push_str("call-core ");
+                ret.print_func_idx(*i)?;
+            }
+            End => ret.result_mut().push_str("end"),
         }
+
+        Ok(())
     }
 }

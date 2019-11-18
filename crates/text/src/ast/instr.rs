@@ -65,5 +65,20 @@ instructions! {
         ArgGet(wast::Index<'a>) : [0x00] : "arg.get",
         CallCore(wast::Index<'a>) : [0x01] : "call-core",
         End : [0x02] : "end",
+        MemoryToString(MemoryToString<'a>) : [0x03] : "memory-to-string",
+    }
+}
+
+/// Payload of the `memory-to-string` instruction
+pub struct MemoryToString<'a> {
+    /// Index of the memory that the string is coming from.
+    pub mem: wast::Index<'a>,
+}
+
+impl<'a> Parse<'a> for MemoryToString<'a> {
+    fn parse(parser: Parser<'a>) -> Result<Self> {
+        Ok(MemoryToString {
+            mem: parser.parse::<Option<_>>()?.unwrap_or(wast::Index::Num(0)),
+        })
     }
 }

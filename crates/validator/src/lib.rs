@@ -20,9 +20,15 @@ pub fn validate(bytes: &[u8]) -> Result<()> {
             SectionCode::Import => {
                 let s = section.get_import_section_reader()?;
                 validator.validate_section(2, "import", s, |v, ty| {
-                    if let ImportSectionEntryType::Function(ty) = ty.ty {
-                        v.validate_core_type_idx(ty)?;
-                        v.core_funcs.push((ty, CoreFunc::Import));
+                    match ty.ty {
+                        ImportSectionEntryType::Function(ty) => {
+                            v.validate_core_type_idx(ty)?;
+                            v.core_funcs.push((ty, CoreFunc::Import));
+                        }
+                        ImportSectionEntryType::Memory(_) => {
+                            v.memories += 1;
+                        }
+                        _ => {}
                     }
                     Ok(())
                 })?;
@@ -32,6 +38,13 @@ pub fn validate(bytes: &[u8]) -> Result<()> {
                 validator.validate_section(3, "function", s, |v, ty| {
                     v.validate_core_type_idx(ty)?;
                     v.core_funcs.push((ty, CoreFunc::Local));
+                    Ok(())
+                })?;
+            }
+            SectionCode::Memory => {
+                let s = section.get_memory_section_reader()?;
+                validator.validate_section(4, "memory", s, |v, _| {
+                    v.memories += 1;
                     Ok(())
                 })?;
             }
@@ -54,6 +67,7 @@ pub fn validate(bytes: &[u8]) -> Result<()> {
 struct Validator<'a> {
     visited: bool,
     last_order: u8,
+    memories: u32,
     types: Vec<Type>,
     func: Vec<u32>,
     exports: HashSet<&'a str>,
@@ -80,19 +94,19 @@ impl<'a> Validator<'a> {
         while !parser.is_empty() {
             match parser.section().context("failed to read section header")? {
                 Section::Type(s) => {
-                    self.validate_section(4, "adapter type", s, Self::validate_type)?
+                    self.validate_section(100, "adapter type", s, Self::validate_type)?
                 }
                 Section::Import(s) => {
-                    self.validate_section(5, "adapter import", s, Self::validate_import)?
+                    self.validate_section(101, "adapter import", s, Self::validate_import)?
                 }
                 Section::Func(s) => {
-                    self.validate_section(6, "adapter func", s, Self::validate_func)?
+                    self.validate_section(102, "adapter func", s, Self::validate_func)?
                 }
                 Section::Export(s) => {
-                    self.validate_section(7, "adapter export", s, Self::validate_export)?
+                    self.validate_section(103, "adapter export", s, Self::validate_export)?
                 }
                 Section::Implement(s) => {
-                    self.validate_section(8, "adapter implement", s, Self::validate_implement)?
+                    self.validate_section(104, "adapter implement", s, Self::validate_implement)?
                 }
             }
         }
@@ -174,6 +188,14 @@ impl<'a> Validator<'a> {
                 for result in ty.returns.iter() {
                     stack.push(wasm2adapter(*result)?);
                 }
+            }
+            MemoryToString(mem) => {
+                if mem >= self.memories {
+                    bail!("memory index out of bounds: {}", mem);
+                }
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::String);
             }
             End => bail!("extra `end` instruction found"),
         }

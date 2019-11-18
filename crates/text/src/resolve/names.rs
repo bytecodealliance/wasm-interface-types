@@ -201,7 +201,8 @@ impl<'a, 'b, 'c> ExprResolver<'a, 'b, 'c> {
                 .map(|_| ())
                 .map_err(|id| self.resolver.resolve_error(id, "local")),
             CallCore(i) => self.resolver.names.resolve_func(i),
-            _ => Ok(()),
+            MemoryToString(m) => self.resolver.names.resolve_memory(&mut m.mem),
+            End => Ok(()),
         }
     }
 }

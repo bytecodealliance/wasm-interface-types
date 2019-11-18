@@ -508,6 +508,7 @@ instructions! {
         ArgGet(u32) = 0x00,
         CallCore(u32) = 0x01,
         End = 0x02,
+        MemoryToString(u32) = 0x03,
     }
 }
 

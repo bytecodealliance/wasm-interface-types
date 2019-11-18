@@ -183,3 +183,9 @@ impl Encode for Implement<'_> {
         }
     }
 }
+
+impl Encode for MemoryToString<'_> {
+    fn encode(&self, e: &mut Vec<u8>) {
+        self.mem.encode(e);
+    }
+}

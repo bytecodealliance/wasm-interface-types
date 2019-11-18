@@ -133,6 +133,9 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
                 ret.print_func_idx(*i)?;
             }
             End => ret.result_mut().push_str("end"),
+            MemoryToString(mem) => {
+                write!(ret.result_mut(), "memory-to-string {}", mem)?;
+            }
         }
 
         Ok(())

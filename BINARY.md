@@ -102,32 +102,13 @@ The `module` and `name` are the wasm module/name that the functionality is
 imported from. The `type` is the type signature in the type section for the
 function being imported. Currently only function imports are supported.
 
-## Export Subsection (2)
-
-The export subsection lists the names that are exported from the wasm interface
-types subsection.
-
-```
-export-subsection : = 0x02 exports:vec(export)
-```
-
-Like the type subsection, this is a list of `export` objects to parse. Each
-export is defined as:
-
-```
-export := name:str func:u32
-```
-
-The `name` is how this export is reference, and the `func` is the wasm interface
-types function index of what's being exported.
-
-## Function Subsection (3)
+## Function Subsection (2)
 
 The function subsection contains the bodies of functions which work with wasm
 interface types.
 
 ```
-func-subsection : = 0x03 funcs:vec(func)
+func-subsection : = 0x02 funcs:vec(func)
 ```
 
 where each `func` is defined as:
@@ -146,6 +127,25 @@ func-body := ty:u32 instrs:instr* end
 Here the `ty` is the type signature index, there's then a whole bunch of
 instructions which follow, and the instructions are terminated by the `end`
 instruction.
+
+## Export Subsection (3)
+
+The export subsection lists the names that are exported from the wasm interface
+types subsection.
+
+```
+export-subsection : = 0x03 exports:vec(export)
+```
+
+Like the type subsection, this is a list of `export` objects to parse. Each
+export is defined as:
+
+```
+export := name:str func:u32
+```
+
+The `name` is how this export is reference, and the `func` is the wasm interface
+types function index of what's being exported.
 
 ## Implement Subsection (4)
 

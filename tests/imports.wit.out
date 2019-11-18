@@ -1,6 +1,0 @@
-(module
-  (@interface type (func (param s32)))
-  (@interface type (func))
-  (@interface import "foo" "bar" (func (type 1)))
-  (@interface import "foo" "bar" (func (type 0)))
-  (@interface import "" "" (func (type 0))))

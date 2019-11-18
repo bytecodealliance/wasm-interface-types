@@ -1,2 +1,0 @@
-(module
-  (@interface export "x" (func 0)))

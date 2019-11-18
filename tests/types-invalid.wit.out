@@ -1,5 +1,0 @@
-expected `(`
-     --> ../../tests/types-invalid.wit:4:20
-      |
-    4 |   (@interface type foo))
-      |                    ^

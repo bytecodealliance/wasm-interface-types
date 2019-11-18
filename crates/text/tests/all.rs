@@ -3,12 +3,18 @@ use std::fs;
 use std::path::Path;
 
 fn main() {
-    test_helpers::run("../../tests".as_ref(), "wit.out", run);
+    std::env::set_current_dir("../..").unwrap();
+    test_helpers::run("tests".as_ref(), run);
 }
 
 fn run(path: &Path) -> Result<String> {
     let test = Test::read_from(path)?;
-    let binary = match wit_text::parse_file(path) {
+    let binary = if path.extension().and_then(|s| s.to_str()) == Some("wat") {
+        wat::parse_file(path).map_err(|e| e.into())
+    } else {
+        wit_text::parse_file(path)
+    };
+    let binary = match binary {
         Ok(binary) => {
             if test.parse_fail {
                 bail!("successfully parsed {:?}", path);
@@ -24,6 +30,20 @@ fn run(path: &Path) -> Result<String> {
             }
         }
     };
+    if !test.no_validate {
+        match wit_validator::validate(&binary) {
+            Ok(()) => {
+                if test.validate_fail {
+                    bail!("expected a validation failure");
+                }
+            }
+            Err(e) => {
+                if test.validate_fail {
+                    return Ok(format!("{:?}", e));
+                }
+            }
+        }
+    }
     let wit = wit_printer::print_bytes(&binary)?;
     let roundtrip = wit_text::parse_str(&wit)?;
     if roundtrip != binary {
@@ -39,6 +59,8 @@ fn run(path: &Path) -> Result<String> {
 #[derive(Default)]
 struct Test {
     parse_fail: bool,
+    no_validate: bool,
+    validate_fail: bool,
 }
 
 impl Test {
@@ -52,6 +74,8 @@ impl Test {
             let line = line[2..].trim();
             match line {
                 "parse-fail" => ret.parse_fail = true,
+                "no-validate" => ret.no_validate = true,
+                "validate-fail" => ret.validate_fail = true,
                 _ => {}
             }
         }

@@ -1,5 +1,0 @@
-expected keyword `func`
-     --> ../../tests/types-wrong-order.wit:4:21
-      |
-    4 |   (@interface type (result s8) (param u8)))
-      |                     ^

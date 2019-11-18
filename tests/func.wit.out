@@ -1,6 +1,0 @@
-(module
-  (@interface type (func))
-  (@interface type (func (param string)))
-  (@interface func (type 0))
-  (@interface func (type 1)
-    arg.get 0))

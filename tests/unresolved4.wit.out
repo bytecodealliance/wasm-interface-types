@@ -1,5 +1,0 @@
-failed to find func named `$foo`
-     --> ../../tests/unresolved4.wit:5:15
-      |
-    5 |     call-core $foo))
-      |               ^

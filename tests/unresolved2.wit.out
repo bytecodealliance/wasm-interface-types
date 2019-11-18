@@ -1,5 +1,0 @@
-failed to find adapter func named `$foo`
-     --> ../../tests/unresolved2.wit:4:32
-      |
-    4 |   (@interface export "x" (func $foo)))
-      |                                ^

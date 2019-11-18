@@ -14,8 +14,10 @@ wit-schema-version = { path = "../schema-version" }
 getopts = "0.2"
 test-helpers = { path = "../test-helpers" }
 wasmparser = "0.42"
+wat = "1.0"
 wit-parser = { path = "../parser" }
 wit-printer = { path = "../printer" }
+wit-validator = { path = "../validator" }
 
 [[test]]
 name = "all"

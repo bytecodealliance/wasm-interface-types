@@ -1,5 +1,0 @@
-import of `` from `` not found in core module
-     --> tests/parse-fail/implement2.wit:3:15
-      |
-    3 |   (@interface implement (import "" "") (func 1)))
-      |               ^

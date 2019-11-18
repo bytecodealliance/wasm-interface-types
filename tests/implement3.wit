@@ -1,3 +1,5 @@
+;; parse-fail
+
 (module
   (import "" "" (func))
   (import "" "" (func))

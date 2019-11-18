@@ -18,9 +18,5 @@ wit-parser = { path = "../parser" }
 wit-printer = { path = "../printer" }
 
 [[test]]
-name = "parse-fail"
-harness = false
-
-[[test]]
-name = "parse-pass"
+name = "all"
 harness = false

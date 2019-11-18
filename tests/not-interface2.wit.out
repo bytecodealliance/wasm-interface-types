@@ -1,5 +1,5 @@
 unexpected token, expected one of: `type`, `import`, `export`, `func`, `implement`
-     --> tests/parse-fail/not-interface2.wit:3:15
+     --> ../../tests/not-interface2.wit:5:15
       |
-    3 |   (@interface foo))
+    5 |   (@interface foo))
       |               ^

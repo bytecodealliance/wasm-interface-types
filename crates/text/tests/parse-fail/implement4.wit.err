@@ -1,5 +1,0 @@
-failed to find func named `$foo`
-     --> tests/parse-fail/implement4.wit:2:31
-      |
-    2 |   (@interface implement (func $foo) (func 1))
-      |                               ^

@@ -1,5 +1,0 @@
-failed to find type named `$foo`
-     --> tests/parse-fail/unresolved1.wit:2:26
-      |
-    2 |   (@interface func (type $foo)))
-      |                          ^

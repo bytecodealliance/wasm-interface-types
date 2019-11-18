@@ -1,5 +1,5 @@
 import of `` from `` is ambiguous since it's listed twice in the core module
-     --> tests/parse-fail/implement3.wit:4:15
+     --> ../../tests/implement3.wit:6:15
       |
-    4 |   (@interface implement (import "" "") (func 1)))
+    6 |   (@interface implement (import "" "") (func 1)))
       |               ^

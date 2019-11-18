@@ -1,2 +1,4 @@
+;; parse-fail
+
 (module
   (@interface type foo))

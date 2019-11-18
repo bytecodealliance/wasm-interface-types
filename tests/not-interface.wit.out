@@ -1,0 +1,5 @@
+expected `(`
+     --> ../../tests/not-interface.wit:3:1
+      |
+    3 | x
+      | ^

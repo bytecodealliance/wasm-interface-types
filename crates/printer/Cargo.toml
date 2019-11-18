@@ -11,3 +11,4 @@ wit-parser = { path = "../parser" }
 
 [dev-dependencies]
 getopts = "0.2"
+wit-validator = { path = "../validator" }

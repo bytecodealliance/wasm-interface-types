@@ -1,2 +1,5 @@
+;; parse-fail
+
 (module
+  (import "" "" (global i32))
   (@interface implement (import "" "") (func 1)))

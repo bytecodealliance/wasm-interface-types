@@ -22,8 +22,8 @@ fn _print_bytes(wasm: &[u8]) -> anyhow::Result<String> {
     printer.print(wasm)
 }
 
-fn print_wit(printer: &mut Printer, bytes: &[u8]) -> anyhow::Result<()> {
-    let mut parser = Parser::new(bytes).context("failed to parse header")?;
+fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Result<()> {
+    let mut parser = Parser::new(offset, bytes).context("failed to parse header")?;
     while !parser.is_empty() {
         match parser.section().context("failed to parse section")? {
             Section::Type(types) => {

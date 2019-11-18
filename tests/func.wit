@@ -1,3 +1,5 @@
+;; no-validate
+
 (module
   (@interface func)
   (@interface func (param $foo string)

@@ -57,8 +57,11 @@ impl<'a> Parser<'a> {
     /// Currently the binary blob is expected to be the payload of a custom
     /// section called `wasm-interface-types`. This will almost surely change in
     /// the future.
-    pub fn new(bytes: &'a [u8]) -> Result<Parser<'a>> {
-        let mut parser = Parser { bytes, pos: 0 };
+    ///
+    /// The `offset` argument is the offset in which `bytes` was found in the
+    /// original binary file, used to generate error messages.
+    pub fn new(offset: usize, bytes: &'a [u8]) -> Result<Parser<'a>> {
+        let mut parser = Parser { bytes, pos: offset };
         let version = <&str as Parse>::parse(&mut parser)?;
         if version != wit_schema_version::VERSION {
             parser.pos = 0;
@@ -253,6 +256,7 @@ impl<'a> Parse<'a> for Type {
 
 /// List of value types supported in wasm interface types
 #[allow(missing_docs)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ValType {
     S8,
     S16,

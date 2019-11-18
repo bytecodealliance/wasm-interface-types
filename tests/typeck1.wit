@@ -1,8 +1,7 @@
 ;; validate-fail
 
 (module
-  (import "" "" (func))
-  (@interface implement (import "" "") (result s32)))
+  (@interface func (result s32)))
 
 (; CHECK-ALL:
 failed to validate interface types section

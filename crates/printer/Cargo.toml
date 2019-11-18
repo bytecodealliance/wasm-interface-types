@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0"
-wasmprinter = "0.1"
+wasmprinter = "0.2"
 wit-parser = { path = "../parser" }
 
 [dev-dependencies]

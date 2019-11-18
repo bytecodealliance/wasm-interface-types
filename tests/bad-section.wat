@@ -19,5 +19,5 @@ failed to validate interface types section
 
 Caused by:
     0: failed to read section header
-    1: failed to parse at byte 6: invalid section id: 127
+    1: failed to parse at byte 37: invalid section id: 127
 ;)

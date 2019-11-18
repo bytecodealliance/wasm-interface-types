@@ -1,5 +1,6 @@
 use anyhow::{anyhow, bail, Context, Result};
 use std::collections::HashSet;
+use std::mem;
 use wasmparser::{FuncType, ImportSectionEntryType, ModuleReader, SectionCode};
 use wit_parser::*;
 
@@ -40,7 +41,7 @@ pub fn validate(bytes: &[u8]) -> Result<()> {
             } => {
                 let range = section.range();
                 validator
-                    .validate(&bytes[range.start..range.end])
+                    .validate(range.start, &bytes[range.start..range.end])
                     .context("failed to validate interface types section")?;
             }
             _ => {}
@@ -58,6 +59,7 @@ struct Validator<'a> {
     exports: HashSet<&'a str>,
     core_types: Vec<FuncType>,
     core_funcs: Vec<(u32, CoreFunc)>,
+    type_stack: Vec<ValType>,
 }
 
 enum CoreFunc {
@@ -66,13 +68,13 @@ enum CoreFunc {
 }
 
 impl<'a> Validator<'a> {
-    fn validate(&mut self, bytes: &'a [u8]) -> Result<()> {
+    fn validate(&mut self, offset: usize, bytes: &'a [u8]) -> Result<()> {
         if self.visited {
             bail!("found two `wasm-interface-types` custom sections");
         }
         self.visited = true;
 
-        let mut parser = Parser::new(bytes).context("failed to parse interface types header")?;
+        let mut parser = Parser::new(offset, bytes).context("failed to parse interface types header")?;
 
         while !parser.is_empty() {
             match parser.section().context("failed to read section header")? {
@@ -132,10 +134,55 @@ impl<'a> Validator<'a> {
     }
 
     fn validate_func(&mut self, func: Func<'a>) -> Result<()> {
-        self.validate_adapter_type_idx(func.ty)?;
+        use Instruction::*;
+
+        let mut type_stack = mem::replace(&mut self.type_stack, Vec::new());
         self.func.push(func.ty);
-        // TODO: validate instructions
-        Ok(())
+        let ty = self.validate_adapter_type_idx(func.ty)?;
+
+        for instr in func.instrs() {
+            match instr? {
+                ArgGet(idx) => {
+                    let ty = ty
+                        .params
+                        .get(idx as usize)
+                        .ok_or_else(|| anyhow!("parameter index out of bounds: {}", idx))?;
+                    type_stack.push(*ty);
+                }
+                CallCore(idx) => {
+                    let ty = self.validate_core_func_idx(idx)?.0;
+
+                    for param in ty.params.iter() {
+                        let ty = match type_stack.pop() {
+                            Some(t) => t,
+                            None => bail!("expected {:?} on type stack, found nothing", param),
+                        };
+                        if !tys_match(ty, *param) {
+                            bail!("expected {:?} on type stack, found {:?}", param, ty);
+                        }
+                    }
+
+                    for result in ty.returns.iter() {
+                        type_stack.push(wasm2adapter(*result)?);
+                    }
+                }
+                End => bail!("extra `end` instruction found"),
+            }
+        }
+        for result in ty.results.iter() {
+            let ty = match type_stack.pop() {
+                Some(t) => t,
+                None => bail!("expected {:?} on type stack, found nothing", result),
+            };
+            if *result != ty {
+                bail!("expected {:?} on type stack, found {:?}", result, ty);
+            }
+        }
+        if !type_stack.is_empty() {
+            bail!("value stack isn't empty on function exit");
+        }
+        self.type_stack = type_stack;
+        return Ok(());
     }
 
     fn validate_export(&mut self, export: Export<'a>) -> Result<()> {
@@ -164,13 +211,13 @@ impl<'a> Validator<'a> {
                 .params
                 .iter()
                 .zip(core_ty.params.iter())
-                .any(|(a, b)| !tys_match(a, b))
+                .any(|(a, b)| !tys_match(*a, *b))
             || adapter_ty.results.len() != core_ty.returns.len()
             || adapter_ty
                 .results
                 .iter()
                 .zip(core_ty.returns.iter())
-                .any(|(a, b)| !tys_match(a, b))
+                .any(|(a, b)| !tys_match(*a, *b))
         {
             bail!(
                 "core function {} has a different type signature \
@@ -211,13 +258,22 @@ impl<'a> Validator<'a> {
     }
 }
 
-fn tys_match(a: &wit_parser::ValType, b: &wasmparser::Type) -> bool {
+fn tys_match(a: ValType, b: wasmparser::Type) -> bool {
     match (a, b) {
-        (wit_parser::ValType::S32, wasmparser::Type::I32) |
-        (wit_parser::ValType::S64, wasmparser::Type::I64) |
-        (wit_parser::ValType::F32, wasmparser::Type::F32) |
-        (wit_parser::ValType::F64, wasmparser::Type::F64) => true,
+        (ValType::S32, wasmparser::Type::I32)
+        | (ValType::S64, wasmparser::Type::I64)
+        | (ValType::F32, wasmparser::Type::F32)
+        | (ValType::F64, wasmparser::Type::F64) => true,
         _ => false,
     }
 }
 
+fn wasm2adapter(a: wasmparser::Type) -> Result<ValType> {
+    Ok(match a {
+        wasmparser::Type::I32 => ValType::S32,
+        wasmparser::Type::I64 => ValType::S64,
+        wasmparser::Type::F32 => ValType::F32,
+        wasmparser::Type::F64 => ValType::F64,
+        _ => bail!("currently {:?} is not a valid wasm interface type", a),
+    })
+}

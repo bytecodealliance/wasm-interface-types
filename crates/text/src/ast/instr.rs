@@ -68,6 +68,7 @@ instructions! {
         MemoryToString(MemoryToString<'a>) : [0x03] : "memory-to-string",
         StringToMemory(StringToMemory<'a>) : [0x04] : "string-to-memory",
         CallAdapter(wast::Index<'a>) : [0x05] : "call-adapter",
+        DeferCallCore(wast::Index<'a>) : [0x06] : "defer-call-core",
     }
 }
 

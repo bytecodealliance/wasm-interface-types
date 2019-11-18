@@ -208,6 +208,7 @@ impl<'a, 'b, 'c> ExprResolver<'a, 'b, 'c> {
                 self.resolver.names.resolve_memory(&mut m.mem)
             }
             CallAdapter(f) => self.resolver.resolve_idx(f, Ns::Func),
+            DeferCallCore(f) => self.resolver.names.resolve_func(f),
         }
     }
 }

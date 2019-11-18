@@ -511,6 +511,7 @@ instructions! {
         MemoryToString(u32) = 0x03,
         StringToMemory(StringToMemory) = 0x04,
         CallAdapter(u32) = 0x05,
+        DeferCallCore(u32) = 0x06,
     }
 }
 

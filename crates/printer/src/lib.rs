@@ -147,6 +147,10 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
                 }
             }
             CallAdapter(f) => write!(ret.result_mut(), "call-adapter {}", f)?,
+            DeferCallCore(f) => {
+                ret.result_mut().push_str("defer-call-core ");
+                ret.print_func_idx(*f)?;
+            }
         }
 
         Ok(())

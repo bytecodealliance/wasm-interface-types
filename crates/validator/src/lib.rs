@@ -222,6 +222,20 @@ impl<'a> Validator<'a> {
                     stack.push(*result);
                 }
             }
+            DeferCallCore(idx) => {
+                let ty = self.validate_core_func_idx(idx)?.0;
+                if ty.returns.len() > 0 {
+                    bail!("cannot have returned values in deferred calls");
+                }
+                // Make sure everything on the stack is right...
+                for param in ty.params.iter() {
+                    self.expect_wasm(*param, stack)?;
+                }
+                // ... but don't actually consume it.
+                for param in ty.params.iter().rev() {
+                    stack.push(wasm2adapter(*param)?);
+                }
+            }
             End => bail!("extra `end` instruction found"),
         }
         Ok(())

@@ -26,3 +26,6 @@ This is pretty unstructured, so beware.
   relative the to the core module's index spaces.
 
 * Can't implement the same function twice in the `implement` subsection
+
+* Currently the `s32` type matches the `i32` type in wasm, same for `s64` and
+  `i64`. This is used during validation when adapters hook up to core functions.

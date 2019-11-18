@@ -109,13 +109,13 @@ impl FileCheck {
     }
 
     pub fn check(&self, output: &str, bless: bool) -> Result<()> {
-        let output = output.trim_end();
+        let output = normalize(output);
         match self {
             FileCheck::Exhaustive(_, path) | FileCheck::None(path) if bless => {
-                update_output(path, output)
+                update_output(path, &output)
             }
             FileCheck::Exhaustive(pattern, _) => {
-                if output == pattern {
+                if output == *pattern {
                     return Ok(());
                 }
                 bail!(
@@ -151,4 +151,21 @@ fn update_output(path: &Path, output: &str) -> Result<()> {
     );
     fs::write(path, new)?;
     Ok(())
+}
+
+fn normalize(output: &str) -> String {
+    let mut ret = String::new();
+    for line in output.lines() {
+        // `anyhow` prints out some helpful information about RUST_LIB_BACKTRACE
+        // but only on nightly right now, so normalize that away.
+        if line.contains("RUST_LIB_BACKTRACE") {
+            continue;
+        }
+        ret.push_str(line);
+        ret.push_str("\n");
+    }
+    while ret.ends_with("\n") {
+        ret.pop();
+    }
+    return ret;
 }

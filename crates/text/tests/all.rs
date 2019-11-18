@@ -1,3 +1,7 @@
+//! Test suite which executes everything inside of the top-level `tests`
+//! directory. Each file is its own test and has an assertion of the expected
+//! output at the end of the test.
+
 use anyhow::{bail, Result};
 use std::fs;
 use std::path::Path;
@@ -9,11 +13,16 @@ fn main() {
 
 fn run(path: &Path) -> Result<String> {
     let test = Test::read_from(path)?;
+
+    // Parse either as a `*.wat` file or a `*.wit` file, depending on the
+    // extension.
     let binary = if path.extension().and_then(|s| s.to_str()) == Some("wat") {
         wat::parse_file(path).map_err(|e| e.into())
     } else {
         wit_text::parse_file(path)
     };
+
+    // Extract the binary bytes, handling `parse-fail` directives here
     let binary = match binary {
         Ok(binary) => {
             if test.parse_fail {
@@ -30,6 +39,8 @@ fn run(path: &Path) -> Result<String> {
             }
         }
     };
+
+    // Perform validation over the binary blob, if not explicitly disabled
     if !test.no_validate {
         match wit_validator::validate(&binary) {
             Ok(()) => {
@@ -49,6 +60,10 @@ fn run(path: &Path) -> Result<String> {
             }
         }
     }
+
+    // And if we got this far do a double-check that our printer can indeed be
+    // parsed, and the binary representation matches our original binary
+    // representation as well.
     let wit = wit_printer::print_bytes(&binary)?;
     let roundtrip = wit_text::parse_str(&wit)?;
     if roundtrip != binary {
@@ -58,6 +73,9 @@ fn run(path: &Path) -> Result<String> {
             wit.replace("\n", "\n    ")
         );
     }
+
+    // And that all passed! Consider our success as the fully-pretty-printed
+    // version of the module.
     Ok(wit)
 }
 

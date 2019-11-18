@@ -1,3 +1,11 @@
+//! A small test framework to execute a test function over all files in a
+//! directory.
+//!
+//! Each file in the directory has its own `CHECK-ALL` annotation indicating the
+//! expected output of the test. That can be automatically updated with
+//! `BLESS=1` in the environment. Otherwise the test are checked against the
+//! listed expectation.
+
 use anyhow::{bail, Context, Result};
 use rayon::prelude::*;
 use std::env;
@@ -50,7 +58,7 @@ fn run_test(test: &Path, bless: bool, run: fn(&Path) -> anyhow::Result<String>) 
         Ok(())
     })()
     .context(format!(
-        "test execution function failed for: {}",
+        "test failed - {}",
         test.display()
     ))?;
     Ok(())

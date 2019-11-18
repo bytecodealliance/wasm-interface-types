@@ -5,11 +5,9 @@
     call-core $foo))
 
 (; CHECK-ALL:
-  failed to find func named `$foo`
-       --> tests/unresolved4.wit:5:15
-        |
-      5 |     call-core $foo))
-        |               ^
-
-  Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
+failed to find func named `$foo`
+     --> tests/unresolved4.wit:5:15
+      |
+    5 |     call-core $foo))
+      |               ^
 ;)

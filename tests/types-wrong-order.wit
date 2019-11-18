@@ -4,11 +4,9 @@
   (@interface type (result s8) (param u8)))
 
 (; CHECK-ALL:
-  expected keyword `func`
-       --> tests/types-wrong-order.wit:4:21
-        |
-      4 |   (@interface type (result s8) (param u8)))
-        |                     ^
-
-  Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
+expected keyword `func`
+     --> tests/types-wrong-order.wit:4:21
+      |
+    4 |   (@interface type (result s8) (param u8)))
+      |                     ^
 ;)

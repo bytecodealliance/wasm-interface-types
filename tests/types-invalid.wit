@@ -4,11 +4,9 @@
   (@interface type foo))
 
 (; CHECK-ALL:
-  expected `(`
-       --> tests/types-invalid.wit:4:20
-        |
-      4 |   (@interface type foo))
-        |                    ^
-
-  Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
+expected `(`
+     --> tests/types-invalid.wit:4:20
+      |
+    4 |   (@interface type foo))
+      |                    ^
 ;)

@@ -5,11 +5,9 @@
   (@interface foo))
 
 (; CHECK-ALL:
-  unexpected token, expected one of: `type`, `import`, `export`, `func`, `implement`
-       --> tests/not-interface2.wit:5:15
-        |
-      5 |   (@interface foo))
-        |               ^
-
-  Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
+unexpected token, expected one of: `type`, `import`, `export`, `func`, `implement`
+     --> tests/not-interface2.wit:5:15
+      |
+    5 |   (@interface foo))
+      |               ^
 ;)

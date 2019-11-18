@@ -19,10 +19,8 @@
 )
 
 (; CHECK-ALL:
-  failed to validate interface types section
+failed to validate interface types section
 
-  Caused by:
-      found two `wasm-interface-types` custom sections
-
-  Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
+Caused by:
+    found two `wasm-interface-types` custom sections
 ;)

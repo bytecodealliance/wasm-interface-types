@@ -5,11 +5,9 @@
   (@interface implement (import "" "") (func 1)))
 
 (; CHECK-ALL:
-  import of `` from `` not found in core module
-       --> tests/implement2.wit:5:15
-        |
-      5 |   (@interface implement (import "" "") (func 1)))
-        |               ^
-
-  Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
+import of `` from `` not found in core module
+     --> tests/implement2.wit:5:15
+      |
+    5 |   (@interface implement (import "" "") (func 1)))
+      |               ^
 ;)

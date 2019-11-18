@@ -1,9 +1,3 @@
-//! A test suite to parse everything in `parse-fail` and assert that it matches
-//! the `*.err` file it generates.
-//!
-//! Use `BLESS=1` in the environment to auto-update `*.err` files. Be sure to
-//! look at the diff!
-
 use anyhow::{bail, Context, Result};
 use rayon::prelude::*;
 use std::env;
@@ -60,34 +54,6 @@ fn run_test(test: &Path, bless: bool, run: fn(&Path) -> anyhow::Result<String>) 
         test.display()
     ))?;
     Ok(())
-    // if bless {
-    //     std::fs::write(assert, actual)?;
-    //     return Ok(());
-    // }
-
-    // // Ignore CRLF line ending and force always `\n`
-    // let expected = std::fs::read_to_string(assert)
-    //     .unwrap_or(String::new())
-    //     .replace("\r\n", "\n");
-    //
-    // // Compare normalize verisons which handles weirdness like path differences
-    // if normalize(&expected) == normalize(&actual) {
-    //     return Ok(());
-    // }
-    //
-    // anyhow::bail!(
-    //     "test outputs didn't match:\n\nexpected:\n\t{}\nactual:\n\t{}\n",
-    //     tab(&expected),
-    //     tab(&actual),
-    // );
-    //
-    // fn normalize(s: &str) -> String {
-    //     s.replace("\\", "/")
-    // }
-    //
-    // fn tab(s: &str) -> String {
-    //     s.replace("\n", "\n\t")
-    // }
 }
 
 fn find_tests(path: &Path, tests: &mut Vec<PathBuf>) {
@@ -114,7 +80,7 @@ pub enum FileCheck {
 impl FileCheck {
     pub fn from_file(path: &Path) -> Result<FileCheck> {
         let contents = fs::read_to_string(path)?;
-        let mut iter = contents.lines().map(str::trim);
+        let mut iter = contents.lines();
         while let Some(line) = iter.next() {
             if line.starts_with("(; CHECK-ALL:") {
                 let mut pattern = String::new();
@@ -124,6 +90,9 @@ impl FileCheck {
                     }
                     pattern.push_str(line);
                     pattern.push_str("\n");
+                }
+                while pattern.ends_with("\n") {
+                    pattern.pop();
                 }
                 if iter.next().is_some() {
                     bail!("CHECK-ALL must be at the end of the file");
@@ -135,6 +104,7 @@ impl FileCheck {
     }
 
     pub fn check(&self, output: &str, bless: bool) -> Result<()> {
+        let output = output.trim_end();
         match self {
             FileCheck::Exhaustive(_, path) | FileCheck::None(path) if bless => {
                 update_output(path, output)
@@ -166,10 +136,7 @@ fn update_output(path: &Path, output: &str) -> Result<()> {
 
     let mut new_output = String::new();
     for line in output.lines() {
-        if !line.is_empty() {
-            new_output.push_str("  ");
-            new_output.push_str(line.trim_end());
-        }
+        new_output.push_str(line);
         new_output.push_str("\n");
     }
     let new = format!(

@@ -5,6 +5,6 @@
 )
 
 (; CHECK-ALL:
-  (module
-    (@interface export "x" (func 0)))
+(module
+  (@interface export "x" (func 0)))
 ;)

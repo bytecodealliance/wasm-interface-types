@@ -6,11 +6,9 @@
 )
 
 (; CHECK-ALL:
-  failed to find adapter func named `$foo`
-       --> tests/implement5.wit:5:40
-        |
-      5 |   (@interface implement (func 1) (func $foo))
-        |                                        ^
-
-  Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
+failed to find adapter func named `$foo`
+     --> tests/implement5.wit:5:40
+      |
+    5 |   (@interface implement (func 1) (func $foo))
+      |                                        ^
 ;)

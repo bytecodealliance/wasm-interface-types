@@ -25,8 +25,8 @@ pub fn encode(adapters: &[Adapter<'_>]) -> Vec<u8> {
     wit_schema_version::VERSION.encode(&mut wasm);
     section_list(0, &types, &mut tmp, &mut wasm);
     section_list(1, &imports, &mut tmp, &mut wasm);
-    section_list(2, &exports, &mut tmp, &mut wasm);
-    section_list(3, &funcs, &mut tmp, &mut wasm);
+    section_list(2, &funcs, &mut tmp, &mut wasm);
+    section_list(3, &exports, &mut tmp, &mut wasm);
     section_list(4, &implements, &mut tmp, &mut wasm);
 
     fn section_list<T: Encode>(id: u8, list: &[T], tmp: &mut Vec<u8>, dst: &mut Vec<u8>) {

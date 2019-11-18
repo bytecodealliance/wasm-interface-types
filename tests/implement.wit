@@ -1,3 +1,5 @@
+;; no-validate
+
 (module
   (import "a" "b" (func $core))
   (import "b" "c" (func))

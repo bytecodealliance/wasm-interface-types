@@ -5,24 +5,21 @@
   "\01\00\00\00"
 
   "\00"                     ;; custom section id
-  "\1b"                     ;; size of section
+  "\1d"                     ;; size of section
   "\14"                     ;; size of section name
   "wasm-interface-types"    ;; name of section (20 bytes)
   "\05"                     ;; schema version len
-  "0.1.0"                   ;; schema version (5 bytes)
-
-
-  "\00"                     ;; custom section id
-  "\15"                     ;; size of section
-  "\14"                     ;; size of section name
-  "wasm-interface-types"    ;; name of section
+  "0.1.0"
+  "\7f"                     ;; section number
+  "\00"                     ;; section size
 )
 
 (; CHECK-ALL:
   failed to validate interface types section
 
   Caused by:
-      found two `wasm-interface-types` custom sections
+      0: failed to read section header
+      1: failed to parse at byte 6: invalid section id: 127
 
   Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
 ;)

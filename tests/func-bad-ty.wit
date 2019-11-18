@@ -1,0 +1,14 @@
+;; validate-fail
+
+(module
+  (@interface func (type 0)))
+
+(; CHECK-ALL:
+  failed to validate interface types section
+
+  Caused by:
+      0: failed to validate adapter func 0
+      1: adapter type index too large: 0
+
+  Backtrace disabled; run with RUST_LIB_BACKTRACE=1 environment variable to display a backtrace
+;)

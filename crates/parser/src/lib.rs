@@ -141,11 +141,11 @@ impl<'a> Parse<'a> for Section<'a> {
             }
             2 => {
                 let cnt = parser.parse()?;
-                Ok(Section::Export(Exports { parser, cnt }))
+                Ok(Section::Func(Funcs { parser, cnt }))
             }
             3 => {
                 let cnt = parser.parse()?;
-                Ok(Section::Func(Funcs { parser, cnt }))
+                Ok(Section::Export(Exports { parser, cnt }))
             }
             4 => {
                 let cnt = parser.parse()?;

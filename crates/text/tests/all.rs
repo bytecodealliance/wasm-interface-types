@@ -26,7 +26,7 @@ fn run(path: &Path) -> Result<String> {
             if test.parse_fail {
                 return Ok(format!("{:?}", e))
             } else {
-                bail!(e);
+                return Err(e)
             }
         }
     };
@@ -34,12 +34,17 @@ fn run(path: &Path) -> Result<String> {
         match wit_validator::validate(&binary) {
             Ok(()) => {
                 if test.validate_fail {
-                    bail!("expected a validation failure");
+                    match wit_printer::print_bytes(&binary) {
+                        Ok(s) => bail!("expected a validation failure: {}", s),
+                        Err(_) => bail!("expected a validation failure"),
+                    }
                 }
             }
             Err(e) => {
                 if test.validate_fail {
                     return Ok(format!("{:?}", e));
+                } else {
+                    return Err(e)
                 }
             }
         }

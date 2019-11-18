@@ -107,7 +107,7 @@ fn find_tests(path: &Path, tests: &mut Vec<PathBuf>) {
 }
 
 pub enum FileCheck {
-    Exhaustive(Vec<String>, PathBuf),
+    Exhaustive(String, PathBuf),
     None(PathBuf),
 }
 
@@ -117,12 +117,13 @@ impl FileCheck {
         let mut iter = contents.lines().map(str::trim);
         while let Some(line) = iter.next() {
             if line.starts_with("(; CHECK-ALL:") {
-                let mut pattern = Vec::new();
+                let mut pattern = String::new();
                 while let Some(line) = iter.next() {
                     if line == ";)" {
                         break;
                     }
-                    pattern.push(line.to_string());
+                    pattern.push_str(line);
+                    pattern.push_str("\n");
                 }
                 if iter.next().is_some() {
                     bail!("CHECK-ALL must be at the end of the file");
@@ -134,17 +135,19 @@ impl FileCheck {
     }
 
     pub fn check(&self, output: &str, bless: bool) -> Result<()> {
-        let output_lines = output.lines().collect::<Vec<_>>();
         match self {
             FileCheck::Exhaustive(_, path) | FileCheck::None(path) if bless => {
-                update_output(path, output)?;
+                update_output(path, output)
             }
             FileCheck::Exhaustive(pattern, _) => {
-                for (out_line, pat_line) in output_lines.iter().zip(pattern) {
-                    if !matches(out_line, pat_line) {
-                        self.missing_pattern(pattern, output)?;
-                    }
+                if output == pattern {
+                    return Ok(());
                 }
+                bail!(
+                    "expected\n    {}\n\nactual\n    {}",
+                    pattern.replace("\n", "\n    "),
+                    output.replace("\n", "\n    ")
+                );
             }
             FileCheck::None(_) => {
                 bail!(
@@ -154,44 +157,7 @@ impl FileCheck {
                 );
             }
         }
-
-        Ok(())
     }
-
-    fn missing_pattern(&self, pattern: &[String], output: &str) -> Result<()> {
-        let pattern = pattern
-            .iter()
-            .enumerate()
-            .map(|(i, l)| format!("    {}: {}", if i == 0 { "CHECK" } else { "NEXT" }, l,))
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        let output = output
-            .lines()
-            .map(|l| format!("    {}", l.trim_end()))
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        bail!(
-            "\
-             CHECK failed!\n\n\
-             Did not find pattern\n\n\
-             {}\n\n\
-             in output\n\n\
-             {}\n\n",
-            pattern,
-            output
-        );
-    }
-}
-
-fn matches(mut actual: &str, expected: &str) -> bool {
-    actual = actual.trim();
-    // skip a leading comment
-    if actual.starts_with("(;") {
-        actual = actual[actual.find(";)").unwrap() + 2..].trim();
-    }
-    actual.starts_with(expected.trim())
 }
 
 fn update_output(path: &Path, output: &str) -> Result<()> {

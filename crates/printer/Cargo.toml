@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0"
-wasmprinter = { git = 'https://github.com/bytecodealliance/wasmprinter' }
+wasmprinter = "0.1"
 wit-parser = { path = "../parser" }
 
 [dev-dependencies]

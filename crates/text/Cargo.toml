@@ -13,7 +13,7 @@ wit-schema-version = { path = "../schema-version" }
 [dev-dependencies]
 getopts = "0.2"
 test-helpers = { path = "../test-helpers" }
-wasmparser = "0.39"
+wasmparser = "0.42"
 wit-parser = { path = "../parser" }
 wit-printer = { path = "../printer" }
 

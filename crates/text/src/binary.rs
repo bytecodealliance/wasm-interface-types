@@ -189,3 +189,10 @@ impl Encode for MemoryToString<'_> {
         self.mem.encode(e);
     }
 }
+
+impl Encode for StringToMemory<'_> {
+    fn encode(&self, e: &mut Vec<u8>) {
+        self.malloc.encode(e);
+        self.mem.encode(e);
+    }
+}

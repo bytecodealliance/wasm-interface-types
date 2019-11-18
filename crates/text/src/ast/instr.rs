@@ -66,6 +66,7 @@ instructions! {
         CallCore(wast::Index<'a>) : [0x01] : "call-core",
         End : [0x02] : "end",
         MemoryToString(MemoryToString<'a>) : [0x03] : "memory-to-string",
+        StringToMemory(StringToMemory<'a>) : [0x04] : "string-to-memory",
     }
 }
 
@@ -78,6 +79,24 @@ pub struct MemoryToString<'a> {
 impl<'a> Parse<'a> for MemoryToString<'a> {
     fn parse(parser: Parser<'a>) -> Result<Self> {
         Ok(MemoryToString {
+            mem: parser.parse::<Option<_>>()?.unwrap_or(wast::Index::Num(0)),
+        })
+    }
+}
+
+/// Payload of the `string-to-memory` instruction
+pub struct StringToMemory<'a> {
+    /// Function which is used as a memory allocator to allocate memory to place
+    /// the string in `mem`.
+    pub malloc: wast::Index<'a>,
+    /// Index of the memory that the string is coming from.
+    pub mem: wast::Index<'a>,
+}
+
+impl<'a> Parse<'a> for StringToMemory<'a> {
+    fn parse(parser: Parser<'a>) -> Result<Self> {
+        Ok(StringToMemory {
+            malloc: parser.parse()?,
             mem: parser.parse::<Option<_>>()?.unwrap_or(wast::Index::Num(0)),
         })
     }

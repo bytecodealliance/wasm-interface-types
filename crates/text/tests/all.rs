@@ -33,9 +33,9 @@ fn run(path: &Path) -> Result<String> {
         }
         Err(e) => {
             if test.parse_fail {
-                return Ok(format!("{:?}", e))
+                return Ok(format!("{:?}", e));
             } else {
-                return Err(e)
+                return Err(e);
             }
         }
     };
@@ -55,7 +55,7 @@ fn run(path: &Path) -> Result<String> {
                 if test.validate_fail {
                     return Ok(format!("{:?}", e));
                 } else {
-                    return Err(e)
+                    return Err(e);
                 }
             }
         }

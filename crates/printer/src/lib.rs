@@ -136,6 +136,13 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
             MemoryToString(mem) => {
                 write!(ret.result_mut(), "memory-to-string {}", mem)?;
             }
+            StringToMemory(payload) => {
+                ret.result_mut().push_str("string-to-memory ");
+                ret.print_func_idx(payload.malloc)?;
+                if payload.mem != 0 {
+                    write!(ret.result_mut(), " {}", payload.mem)?;
+                }
+            }
         }
 
         Ok(())

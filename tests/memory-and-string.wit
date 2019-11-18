@@ -9,6 +9,11 @@
     call-core $greeting
     memory-to-string $mem
   )
+
+  (@interface func (result string)
+    call-core $greeting
+    memory-to-string ;; don't specify the index
+  )
 )
 
 (; CHECK-ALL:
@@ -21,6 +26,9 @@
   (data (;0;) (i32.const 0) "hello there")
   (@interface type (;0;) (func (result string)))
   (@interface func (;0;) (type 0)
+    call-core $greeting
+    memory-to-string 0)
+  (@interface func (;1;) (type 0)
     call-core $greeting
     memory-to-string 0)
   (@interface export "greeting" (func 0)))

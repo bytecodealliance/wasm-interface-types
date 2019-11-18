@@ -57,10 +57,7 @@ fn run_test(test: &Path, bless: bool, run: fn(&Path) -> anyhow::Result<String>) 
         expected.check(&actual, bless)?;
         Ok(())
     })()
-    .context(format!(
-        "test failed - {}",
-        test.display()
-    ))?;
+    .context(format!("test failed - {}", test.display()))?;
     Ok(())
 }
 

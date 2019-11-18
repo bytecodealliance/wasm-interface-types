@@ -197,6 +197,22 @@ impl<'a> Validator<'a> {
                 self.expect_wasm(wasmparser::Type::I32, stack)?;
                 stack.push(ValType::String);
             }
+            StringToMemory(args) => {
+                if args.mem >= self.memories {
+                    bail!("memory index out of bounds: {}", args.mem);
+                }
+                let ty = self.validate_core_func_idx(args.malloc)?.0;
+                if &*ty.params != [wasmparser::Type::I32] || &*ty.returns != [wasmparser::Type::I32]
+                {
+                    bail!(
+                        "malloc function {} does not have correct signature",
+                        args.malloc
+                    );
+                }
+                self.expect_interface(ValType::String, stack)?;
+                stack.push(ValType::S32);
+                stack.push(ValType::S32);
+            }
             End => bail!("extra `end` instruction found"),
         }
         Ok(())

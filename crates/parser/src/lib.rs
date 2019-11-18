@@ -509,6 +509,26 @@ instructions! {
         CallCore(u32) = 0x01,
         End = 0x02,
         MemoryToString(u32) = 0x03,
+        StringToMemory(StringToMemory) = 0x04,
+    }
+}
+
+/// Payload of the `string-to-memory` instruction
+pub struct StringToMemory {
+    /// Function in the core module being used to allocate memory in `mem` to
+    /// place a string into. Must take one `i32` parameter and return one `i32`
+    /// parameter.
+    pub malloc: u32,
+    /// Memory index that the string will be placed into.
+    pub mem: u32,
+}
+
+impl<'a> Parse<'a> for StringToMemory {
+    fn parse(parser: &mut Parser<'a>) -> Result<Self> {
+        Ok(StringToMemory {
+            malloc: parser.parse()?,
+            mem: parser.parse()?,
+        })
     }
 }
 
@@ -528,7 +548,7 @@ impl fmt::Display for Error {
             ErrorKind::InvalidUtf8 => write!(f, "invalid utf-8 string"),
             ErrorKind::InvalidSection(n) => write!(f, "invalid section id: {}", n),
             ErrorKind::InvalidValType(n) => write!(f, "invalid value type: {}", n),
-            ErrorKind::InvalidInstruction(n) => write!(f, "invalid instruction: {}", n),
+            ErrorKind::InvalidInstruction(n) => write!(f, "invalid instruction: 0x{:02x}", n),
             ErrorKind::Expected(n) => write!(f, "expected {} more bytes but hit eof", n),
             ErrorKind::TrailingBytes => write!(f, "trailing bytes at the end of the section"),
         }

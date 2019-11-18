@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0"
 leb128 = "0.2"
-wast = { git = 'https://github.com/bytecodealliance/wat' }
+wast = "3.0.4"
 wit-schema-version = { path = "../schema-version" }
 
 [dev-dependencies]

@@ -158,7 +158,7 @@ fn normalize(output: &str) -> String {
     for line in output.lines() {
         // `anyhow` prints out some helpful information about RUST_LIB_BACKTRACE
         // but only on nightly right now, so normalize that away.
-        if line.contains("RUST_LIB_BACKTRACE") {
+        if line.contains("RUST_LIB_BACKTRACE") || line.contains("Stack backtrace:") {
             continue;
         }
         ret.push_str(line);

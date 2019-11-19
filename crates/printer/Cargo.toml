@@ -8,6 +8,7 @@ edition = "2018"
 anyhow = "1.0"
 wasmprinter = "0.2"
 wit-parser = { path = "../parser" }
+wit-schema-version = { path = "../schema-version" }
 
 [dev-dependencies]
 getopts = "0.2"

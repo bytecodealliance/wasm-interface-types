@@ -2,7 +2,7 @@
 //! directory. Each file is its own test and has an assertion of the expected
 //! output at the end of the test.
 
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use std::fs;
 use std::path::Path;
 
@@ -59,6 +59,16 @@ fn run(path: &Path) -> Result<String> {
                 }
             }
         }
+
+        // If we validated correctly then `walrus` parsing should definitely
+        // succeed
+        let mut module = walrus::ModuleConfig::new()
+            .on_parse(wit_walrus::on_parse)
+            .parse(&binary)
+            .context("failed walrus parsing")?;
+        walrus::passes::gc::run(&mut module);
+        let binary = module.emit_wasm();
+        wit_validator::validate(&binary).context("failed walrus round trip validation")?;
     }
 
     // And if we got this far do a double-check that our printer can indeed be

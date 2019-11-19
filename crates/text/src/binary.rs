@@ -1,8 +1,8 @@
 use crate::ast::*;
 
-pub fn encode(adapters: &[Adapter<'_>]) -> Vec<u8> {
+pub fn append(adapters: &[Adapter<'_>], wasm: &mut Vec<u8>) {
     if adapters.len() == 0 {
-        return Vec::new();
+        return;
     }
     let mut types = Vec::new();
     let mut imports = Vec::new();
@@ -19,180 +19,153 @@ pub fn encode(adapters: &[Adapter<'_>]) -> Vec<u8> {
         }
     }
 
-    let mut wasm = Vec::new();
-    let mut tmp = Vec::new();
-    "wasm-interface-types".encode(&mut wasm);
-    wit_schema_version::VERSION.encode(&mut wasm);
-    section_list(0, &types, &mut tmp, &mut wasm);
-    section_list(1, &imports, &mut tmp, &mut wasm);
-    section_list(2, &funcs, &mut tmp, &mut wasm);
-    section_list(3, &exports, &mut tmp, &mut wasm);
-    section_list(4, &implements, &mut tmp, &mut wasm);
+    let mut writer = wit_writer::Writer::new();
 
-    fn section_list<T: Encode>(id: u8, list: &[T], tmp: &mut Vec<u8>, dst: &mut Vec<u8>) {
-        if !list.is_empty() {
-            section(id, list, tmp, dst)
-        }
+    // First up is the type section ...
+    let mut w = writer.types(types.len() as u32);
+    for ty in types {
+        w.add(
+            ty.params.len() as u32,
+            |w| {
+                for (_, param) in ty.params.iter() {
+                    write_ty(w, param);
+                }
+            },
+            ty.results.len() as u32,
+            |w| {
+                for result in ty.results.iter() {
+                    write_ty(w, result);
+                }
+            },
+        );
     }
 
-    fn section<T: Encode>(id: u8, list: T, tmp: &mut Vec<u8>, dst: &mut Vec<u8>) {
-        tmp.truncate(0);
-        list.encode(tmp);
-        dst.push(id);
-        tmp.encode(dst);
+    drop(w);
+
+    // ... then the import section ...
+    let mut w = writer.imports(imports.len() as u32);
+    for import in imports {
+        w.add(
+            import.module,
+            import.name,
+            get_num(import.ty.index.as_ref().expect("unresolved type use")),
+        );
     }
-    tmp.truncate(0);
-    tmp.push(0);
-    wasm.encode(&mut tmp);
+    drop(w);
 
-    return tmp;
-}
-
-pub(crate) trait Encode {
-    fn encode(&self, e: &mut Vec<u8>);
-}
-
-impl<T: Encode + ?Sized> Encode for &'_ T {
-    fn encode(&self, e: &mut Vec<u8>) {
-        T::encode(self, e)
-    }
-}
-
-impl<T: Encode> Encode for [T] {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.len().encode(e);
-        for item in self {
-            item.encode(e);
-        }
-    }
-}
-
-impl Encode for [u8] {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.len().encode(e);
-        e.extend_from_slice(self);
-    }
-}
-
-impl<T: Encode> Encode for Vec<T> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        <[T]>::encode(self, e)
-    }
-}
-
-impl Encode for str {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.as_bytes().encode(e);
-    }
-}
-
-impl Encode for usize {
-    fn encode(&self, e: &mut Vec<u8>) {
-        assert!(*self <= u32::max_value() as usize);
-        (*self as u32).encode(e)
-    }
-}
-
-impl Encode for u32 {
-    fn encode(&self, e: &mut Vec<u8>) {
-        leb128::write::unsigned(e, (*self).into()).unwrap();
-    }
-}
-
-impl Encode for wast::Index<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        match self {
-            wast::Index::Num(n) => n.encode(e),
-            wast::Index::Id(_) => panic!("unresolved name"),
-        }
-    }
-}
-
-impl Encode for Type<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.params.len().encode(e);
-        for (_, param) in self.params.iter() {
-            param.encode(e);
-        }
-        self.results.encode(e);
-    }
-}
-
-impl Encode for ValType {
-    fn encode(&self, e: &mut Vec<u8>) {
-        e.push(self.clone() as u8);
-    }
-}
-
-impl Encode for TypeUse<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.index
-            .as_ref()
-            .expect("TypeUse should be filled in")
-            .encode(e)
-    }
-}
-
-impl Encode for Import<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.module.encode(e);
-        self.name.encode(e);
-        self.ty.encode(e);
-    }
-}
-
-impl Encode for Export<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.func.encode(e);
-        self.name.encode(e);
-    }
-}
-
-impl Encode for Func<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        let mut tmp = Vec::new();
-        assert!(self.export.is_none());
-        self.ty.encode(&mut tmp);
-        let instrs = match &self.kind {
+    // ... then the function section ...
+    let mut w = writer.funcs(funcs.len() as u32);
+    for func in funcs {
+        let mut w = w.add(get_num(
+            &func.ty.index.as_ref().expect("unresolved type use"),
+        ));
+        assert!(func.export.is_none());
+        let instrs = match &func.kind {
             FuncKind::Inline { instrs } => instrs,
             FuncKind::Import { .. } => panic!("imports should be de-inlined"),
         };
-        instrs.encode(&mut tmp);
-        tmp.encode(e);
-    }
-}
+        for instr in instrs.instrs.iter() {
+            use Instruction::*;
 
-impl Encode for Instructions<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        for instr in self.instrs.iter() {
-            instr.encode(e);
+            match instr {
+                ArgGet(a) => w.arg_get(get_num(a)),
+                CallCore(a) => w.call_core(get_num(a)),
+                DeferCallCore(a) => w.defer_call_core(get_num(a)),
+                CallAdapter(a) => w.call_adapter(get_num(a)),
+                MemoryToString(a) => w.memory_to_string(get_num(&a.mem)),
+                StringToMemory(a) => w.string_to_memory(get_num(&a.malloc), get_num(&a.mem)),
+
+                I32ToS8 => w.i32_to_s8(),
+                I32ToS8X => w.i32_to_s8x(),
+                I32ToU8 => w.i32_to_u8(),
+                I32ToS16 => w.i32_to_s16(),
+                I32ToS16X => w.i32_to_s16x(),
+                I32ToU16 => w.i32_to_u16(),
+                I32ToS32 => w.i32_to_s32(),
+                I32ToU32 => w.i32_to_u32(),
+                I32ToS64 => w.i32_to_s64(),
+                I32ToU64 => w.i32_to_u64(),
+
+                I64ToS8 => w.i64_to_s8(),
+                I64ToS8X => w.i64_to_s8x(),
+                I64ToU8 => w.i64_to_u8(),
+                I64ToS16 => w.i64_to_s16(),
+                I64ToS16X => w.i64_to_s16x(),
+                I64ToU16 => w.i64_to_u16(),
+                I64ToS32 => w.i64_to_s32(),
+                I64ToS32X => w.i64_to_s32x(),
+                I64ToU32 => w.i64_to_u32(),
+                I64ToS64 => w.i64_to_s64(),
+                I64ToU64 => w.i64_to_u64(),
+
+                S8ToI32 => w.s8_to_i32(),
+                U8ToI32 => w.u8_to_i32(),
+                S16ToI32 => w.s16_to_i32(),
+                U16ToI32 => w.u16_to_i32(),
+                S32ToI32 => w.s32_to_i32(),
+                U32ToI32 => w.u32_to_i32(),
+                S64ToI32 => w.s64_to_i32(),
+                S64ToI32X => w.s64_to_i32x(),
+                U64ToI32 => w.u64_to_i32(),
+                U64ToI32X => w.u64_to_i32x(),
+
+                S8ToI64 => w.s8_to_i64(),
+                U8ToI64 => w.u8_to_i64(),
+                S16ToI64 => w.s16_to_i64(),
+                U16ToI64 => w.u16_to_i64(),
+                S32ToI64 => w.s32_to_i64(),
+                U32ToI64 => w.u32_to_i64(),
+                S64ToI64 => w.s64_to_i64(),
+                U64ToI64 => w.u64_to_i64(),
+            }
         }
-        Instruction::End.encode(e);
     }
-}
+    drop(w);
 
-impl Encode for Implement<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        match &self.implemented {
-            Implemented::ByIndex(i) => i.encode(e),
+    // ... then the export section ...
+    let mut w = writer.exports(exports.len() as u32);
+    for export in exports {
+        w.add(export.name, get_num(&export.func));
+    }
+    drop(w);
+
+    // ... and finally the implements section
+    let mut w = writer.implements(implements.len() as u32);
+    for implement in implements {
+        let implemented = match &implement.implemented {
+            Implemented::ByIndex(i) => i,
             Implemented::ByName { .. } => panic!("should be `ByIndex`"),
-        }
-        match &self.implementation {
-            Implementation::ByIndex(i) => i.encode(e),
+        };
+        let implementation = match &implement.implementation {
+            Implementation::ByIndex(i) => i,
             Implementation::Inline { .. } => panic!("should be `ByIndex`"),
-        }
+        };
+        w.add(get_num(implemented), get_num(implementation));
+    }
+    drop(w);
+
+    wasm.extend_from_slice(&writer.into_custom_section());
+}
+
+fn get_num(idx: &wast::Index<'_>) -> u32 {
+    match idx {
+        wast::Index::Num(n) => *n,
+        wast::Index::Id(s) => panic!("unresolved name: {}", s.name()),
     }
 }
 
-impl Encode for MemoryToString<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.mem.encode(e);
-    }
-}
-
-impl Encode for StringToMemory<'_> {
-    fn encode(&self, e: &mut Vec<u8>) {
-        self.malloc.encode(e);
-        self.mem.encode(e);
+fn write_ty(w: &mut wit_writer::Type<'_>, ty: &ValType) {
+    match ty {
+        ValType::S8 => w.s8(),
+        ValType::S16 => w.s16(),
+        ValType::S32 => w.s32(),
+        ValType::S64 => w.s64(),
+        ValType::U8 => w.u8(),
+        ValType::U16 => w.u16(),
+        ValType::U32 => w.u32(),
+        ValType::U64 => w.u64(),
+        ValType::F32 => w.f32(),
+        ValType::F64 => w.f64(),
+        ValType::String => w.string(),
     }
 }

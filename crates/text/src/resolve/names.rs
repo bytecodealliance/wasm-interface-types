@@ -201,7 +201,6 @@ impl<'a, 'b, 'c> ExprResolver<'a, 'b, 'c> {
                 .map(|_| ())
                 .map_err(|id| self.resolver.resolve_error(id, "local")),
             CallCore(i) => self.resolver.names.resolve_func(i),
-            End => Ok(()),
             MemoryToString(m) => self.resolver.names.resolve_memory(&mut m.mem),
             StringToMemory(m) => {
                 self.resolver.names.resolve_func(&mut m.malloc)?;
@@ -209,6 +208,7 @@ impl<'a, 'b, 'c> ExprResolver<'a, 'b, 'c> {
             }
             CallAdapter(f) => self.resolver.resolve_idx(f, Ns::Func),
             DeferCallCore(f) => self.resolver.names.resolve_func(f),
+            _ => Ok(()),
         }
     }
 }

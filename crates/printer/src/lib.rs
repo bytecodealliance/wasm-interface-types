@@ -151,6 +151,49 @@ fn print_wit(printer: &mut Printer, offset: usize, bytes: &[u8]) -> anyhow::Resu
                 ret.result_mut().push_str("defer-call-core ");
                 ret.print_func_idx(*f)?;
             }
+
+            I32ToS8 => ret.result_mut().push_str("i32-to-s8"),
+            I32ToS8X => ret.result_mut().push_str("i32-to-s8x"),
+            I32ToU8 => ret.result_mut().push_str("i32-to-u8"),
+            I32ToS16 => ret.result_mut().push_str("i32-to-s16"),
+            I32ToS16X => ret.result_mut().push_str("i32-to-s16x"),
+            I32ToU16 => ret.result_mut().push_str("i32-to-u16"),
+            I32ToS32 => ret.result_mut().push_str("i32-to-s32"),
+            I32ToU32 => ret.result_mut().push_str("i32-to-u32"),
+            I32ToS64 => ret.result_mut().push_str("i32-to-s64"),
+            I32ToU64 => ret.result_mut().push_str("i32-to-u64"),
+
+            I64ToS8 => ret.result_mut().push_str("i64-to-s8"),
+            I64ToS8X => ret.result_mut().push_str("i64-to-s8x"),
+            I64ToU8 => ret.result_mut().push_str("i64-to-u8"),
+            I64ToS16 => ret.result_mut().push_str("i64-to-s16"),
+            I64ToS16X => ret.result_mut().push_str("i64-to-s16x"),
+            I64ToU16 => ret.result_mut().push_str("i64-to-u16"),
+            I64ToS32 => ret.result_mut().push_str("i64-to-s32"),
+            I64ToS32X => ret.result_mut().push_str("i64-to-s32x"),
+            I64ToU32 => ret.result_mut().push_str("i64-to-u32"),
+            I64ToS64 => ret.result_mut().push_str("i64-to-s64"),
+            I64ToU64 => ret.result_mut().push_str("i64-to-u64"),
+
+            S8ToI32 => ret.result_mut().push_str("s8-to-i32"),
+            U8ToI32 => ret.result_mut().push_str("u8-to-i32"),
+            S16ToI32 => ret.result_mut().push_str("s16-to-i32"),
+            U16ToI32 => ret.result_mut().push_str("u16-to-i32"),
+            S32ToI32 => ret.result_mut().push_str("s32-to-i32"),
+            U32ToI32 => ret.result_mut().push_str("u32-to-i32"),
+            S64ToI32 => ret.result_mut().push_str("s64-to-i32"),
+            S64ToI32X => ret.result_mut().push_str("s64-to-i32x"),
+            U64ToI32 => ret.result_mut().push_str("u64-to-i32"),
+            U64ToI32X => ret.result_mut().push_str("u64-to-i32x"),
+
+            S8ToI64 => ret.result_mut().push_str("s8-to-i64"),
+            U8ToI64 => ret.result_mut().push_str("u8-to-i64"),
+            S16ToI64 => ret.result_mut().push_str("s16-to-i64"),
+            U16ToI64 => ret.result_mut().push_str("u16-to-i64"),
+            S32ToI64 => ret.result_mut().push_str("s32-to-i64"),
+            U32ToI64 => ret.result_mut().push_str("u32-to-i64"),
+            S64ToI64 => ret.result_mut().push_str("s64-to-i64"),
+            U64ToI64 => ret.result_mut().push_str("u64-to-i64"),
         }
 
         Ok(())

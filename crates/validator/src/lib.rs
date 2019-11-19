@@ -237,6 +237,166 @@ impl<'a> Validator<'a> {
                 }
             }
             End => bail!("extra `end` instruction found"),
+
+            I32ToS8 => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::S8);
+            }
+            I32ToS8X => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::S8);
+            }
+            I32ToU8 => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::U8);
+            }
+            I32ToS16 => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::S16);
+            }
+            I32ToS16X => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::S16);
+            }
+            I32ToU16 => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::U16);
+            }
+            I32ToS32 => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::S32);
+            }
+            I32ToU32 => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::U32);
+            }
+            I32ToS64 => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::S64);
+            }
+            I32ToU64 => {
+                self.expect_wasm(wasmparser::Type::I32, stack)?;
+                stack.push(ValType::U64);
+            }
+
+            I64ToS8 => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::S8);
+            }
+            I64ToS8X => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::S8);
+            }
+            I64ToU8 => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::U8);
+            }
+            I64ToS16 => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::S16);
+            }
+            I64ToS16X => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::S16);
+            }
+            I64ToU16 => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::U16);
+            }
+            I64ToS32 => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::S32);
+            }
+            I64ToS32X => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::S32);
+            }
+            I64ToU32 => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::U32);
+            }
+            I64ToS64 => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::S64);
+            }
+            I64ToU64 => {
+                self.expect_wasm(wasmparser::Type::I64, stack)?;
+                stack.push(ValType::U64);
+            }
+
+            S8ToI32 => {
+                self.expect_interface(ValType::S8, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            U8ToI32 => {
+                self.expect_interface(ValType::U8, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            S16ToI32 => {
+                self.expect_interface(ValType::S16, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            U16ToI32 => {
+                self.expect_interface(ValType::U16, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            S32ToI32 => {
+                self.expect_interface(ValType::S32, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            U32ToI32 => {
+                self.expect_interface(ValType::U32, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            S64ToI32 => {
+                self.expect_interface(ValType::S64, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            S64ToI32X => {
+                self.expect_interface(ValType::S64, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            U64ToI32 => {
+                self.expect_interface(ValType::U64, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+            U64ToI32X => {
+                self.expect_interface(ValType::U64, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I32)?);
+            }
+
+            S8ToI64 => {
+                self.expect_interface(ValType::S8, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I64)?);
+            }
+            U8ToI64 => {
+                self.expect_interface(ValType::U8, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I64)?);
+            }
+            S16ToI64 => {
+                self.expect_interface(ValType::S16, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I64)?);
+            }
+            U16ToI64 => {
+                self.expect_interface(ValType::U16, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I64)?);
+            }
+            S32ToI64 => {
+                self.expect_interface(ValType::S32, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I64)?);
+            }
+            U32ToI64 => {
+                self.expect_interface(ValType::U32, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I64)?);
+            }
+            S64ToI64 => {
+                self.expect_interface(ValType::S64, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I64)?);
+            }
+            U64ToI64 => {
+                self.expect_interface(ValType::U64, stack)?;
+                stack.push(wasm2adapter(wasmparser::Type::I64)?);
+            }
         }
         Ok(())
     }

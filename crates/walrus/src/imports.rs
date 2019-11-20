@@ -1,4 +1,4 @@
-use crate::{FuncId, WasmInterfaceTypes, WitIndicesToIds, WitIdsToIndices};
+use crate::{FuncId, WasmInterfaceTypes, WitIdsToIndices, WitIndicesToIds};
 use anyhow::Result;
 use id_arena::{Arena, Id};
 
@@ -33,15 +33,15 @@ impl WasmInterfaceTypes {
         Ok(())
     }
 
-    pub(crate) fn encode_imports(&self, writer: &mut wit_writer::Writer, wids: &mut WitIdsToIndices) {
+    pub(crate) fn encode_imports(
+        &self,
+        writer: &mut wit_writer::Writer,
+        wids: &mut WitIdsToIndices,
+    ) {
         let mut w = writer.imports(self.imports.arena.len() as u32);
         for import in self.imports.iter() {
             let ty = self.funcs.get(import.func).ty;
-            w.add(
-                &import.module,
-                &import.name,
-                wids.ty(ty),
-            );
+            w.add(&import.module, &import.name, wids.ty(ty));
             wids.push_func(import.func);
         }
     }

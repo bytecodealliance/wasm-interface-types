@@ -40,7 +40,7 @@ impl CustomSection for WasmInterfaceTypes {
         writer.into_payload().into()
     }
 
-    fn gc_add_roots(&self, roots: &mut Roots) {
+    fn add_gc_roots(&self, roots: &mut Roots) {
         for i in self.implements.iter() {
             roots.push_func(i.core_func);
         }

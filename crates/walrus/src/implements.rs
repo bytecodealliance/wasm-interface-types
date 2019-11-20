@@ -1,4 +1,4 @@
-use crate::{FuncId, WasmInterfaceTypes, WitIndicesToIds, WitIdsToIndices};
+use crate::{FuncId, WasmInterfaceTypes, WitIdsToIndices, WitIndicesToIds};
 use anyhow::Result;
 use id_arena::{Arena, Id};
 use walrus::IndicesToIds;

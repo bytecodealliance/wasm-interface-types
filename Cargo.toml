@@ -12,4 +12,4 @@ members = [
 ]
 
 [patch.crates-io]
-walrus = { git = 'https://github.com/alexcrichton/walrus', branch = 'custom-section-roots' }
+walrus = { git = 'https://github.com/rustwasm/walrus' }

@@ -19,7 +19,7 @@ pub fn print_bytes(wasm: impl AsRef<[u8]>) -> anyhow::Result<String> {
 
 fn _print_bytes(wasm: &[u8]) -> anyhow::Result<String> {
     let mut printer = Printer::new();
-    printer.add_custom_section_printer("wasm-interface-types", print_wit);
+    printer.add_custom_section_printer(wit_schema_version::SECTION_NAME, print_wit);
     printer.print(wasm)
 }
 

@@ -35,12 +35,19 @@ Functionality provided by this project currently is:
 * `crates/parser` - a Rust library which parses the binary format for wasm
   interface types
 
+* `crates/writer` - a Rust library which is a raw interface for writing the
+  binary format of wasm interface types
+
 * `crates/validator` - a Rust library which performs validation over a wasm
   module which contains wasm interface types, specifically focusing on the wasm
   interface types section.
 
 * `crates/printer` - a Rust library which will print the binary representation
   of a wasm interface types `*.wasm` blob into its textual format.
+
+* `crates/walrus` - an implementation of a custom section type for the `walrus`
+  Rust crate, useful for more advanced transformation on interface type
+  sections.
 
 The current state of the binary encoding as well as some semantic nodes are
 located in [`BINARY.md`](BINARY.md) as well as [`SEMANTICS.md`](SEMANTICS.md).

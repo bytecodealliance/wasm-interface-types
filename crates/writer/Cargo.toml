@@ -1,11 +1,9 @@
 [package]
-name = "wit-validator"
+name = "wit-writer"
 version = "0.1.0"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
 edition = "2018"
 
 [dependencies]
-anyhow = "1.0"
-wasmparser = "0.42"
-wit-parser = { path = "../parser" }
 wit-schema-version = { path = "../schema-version" }
+leb128 = "0.2"

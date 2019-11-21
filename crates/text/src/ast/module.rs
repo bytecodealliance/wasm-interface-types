@@ -35,7 +35,7 @@ impl Module<'_> {
         };
         crate::resolve::resolve(core, &mut self.adapters, &names)?;
         let mut core = self.core.encode()?;
-        core.extend_from_slice(&crate::binary::encode(&self.adapters));
+        crate::binary::append(&self.adapters, &mut core);
         Ok(core)
     }
 }

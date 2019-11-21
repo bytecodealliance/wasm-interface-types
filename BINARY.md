@@ -66,21 +66,8 @@ many types are in the subsection. Each type is encoded as:
 type := params:vec(valtype) results:vec(valtype)
 ```
 
-And value types are encoded as:
-
-```
-valtype := 0x00     # string
-         | 0x01     # s8
-         | 0x02     # s16
-         | 0x03     # s32
-         | 0x04     # s64
-         | 0x05     # u8
-         | 0x06     # u16
-         | 0x07     # u32
-         | 0x08     # u64
-         | 0x09     # f32
-         | 0x0a     # f64
-```
+Value type encodings are best consulted by looking at the source, namely the
+`wit-writer` and `wit-parser` crates.
 
 ## Import Subsection (1)
 
@@ -168,10 +155,5 @@ type signature must match `core-func`'s type signature.
 
 ## Instructions
 
-Instruction encodings look like:
-
-```
-instr := 0x00 param:u32      # arg.get $param
-      |  0x01 id:u32         # call-core $func
-      |  0x02                # end
-```
+Instruction encodings are best consulted by looking at the source, namely the
+`wit-writer` and `wit-parser` crates.

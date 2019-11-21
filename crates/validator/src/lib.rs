@@ -4,6 +4,13 @@ use std::mem;
 use wasmparser::{FuncType, ImportSectionEntryType, ModuleReader, SectionCode};
 use wit_parser::*;
 
+/// Validates an entire WebAssembly module listed by `bytes`
+///
+/// The `bytes` given must be an entire WebAssembly module, not just the
+/// interface types custom section. This will validate only the wasm interface
+/// types custom section, it will only perform minimal validation of the rest of
+/// the module as needed. For example core wasm functions aren't typechecked
+/// here.
 pub fn validate(bytes: &[u8]) -> Result<()> {
     let mut printer = ModuleReader::new(bytes)?;
     let mut validator = Validator::default();
@@ -49,12 +56,12 @@ pub fn validate(bytes: &[u8]) -> Result<()> {
                 })?;
             }
             SectionCode::Custom {
-                name: "wasm-interface-types",
+                name: wit_schema_version::SECTION_NAME,
                 ..
             } => {
                 let range = section.range();
                 validator
-                    .validate(range.start, &bytes[range.start..range.end])
+                    .validate_wit_custom_section(range.start, &bytes[range.start..range.end])
                     .context("failed to validate interface types section")?;
             }
             _ => {}
@@ -63,8 +70,12 @@ pub fn validate(bytes: &[u8]) -> Result<()> {
     Ok(())
 }
 
+/// A validator for the wasm interface types section.
+///
+/// This structure is used to visit *just* the wasm interface types subsection,
+/// if it's already been parsed out.
 #[derive(Default)]
-struct Validator<'a> {
+pub struct Validator<'a> {
     visited: bool,
     last_order: u8,
     memories: u32,
@@ -82,7 +93,12 @@ enum CoreFunc {
 }
 
 impl<'a> Validator<'a> {
-    fn validate(&mut self, offset: usize, bytes: &'a [u8]) -> Result<()> {
+    /// Validates the wasm interface types custom section given.
+    ///
+    /// The `offset` given is the offset within the file that `bytes` was found
+    /// at. This is purely used for error messages. The `bytes` given must be
+    /// the entire contents of the wasm interface types section.
+    pub fn validate_wit_custom_section(&mut self, offset: usize, bytes: &'a [u8]) -> Result<()> {
         if self.visited {
             bail!("found two `wasm-interface-types` custom sections");
         }

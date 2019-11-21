@@ -6,18 +6,19 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0"
-leb128 = "0.2"
 wast = "3.0.4"
-wit-schema-version = { path = "../schema-version" }
+wit-writer = { path = "../writer" }
 
 [dev-dependencies]
 getopts = "0.2"
 test-helpers = { path = "../test-helpers" }
+walrus = "0.13.0"
 wasmparser = "0.42"
 wat = "1.0"
 wit-parser = { path = "../parser" }
 wit-printer = { path = "../printer" }
 wit-validator = { path = "../validator" }
+wit-walrus = { path = "../walrus" }
 
 [[test]]
 name = "all"

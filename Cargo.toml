@@ -8,4 +8,8 @@ edition = "2018"
 members = [
   'crates/text',
   'crates/printer',
+  'crates/walrus',
 ]
+
+[patch.crates-io]
+walrus = { git = 'https://github.com/rustwasm/walrus' }

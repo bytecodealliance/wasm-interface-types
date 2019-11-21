@@ -274,17 +274,17 @@ pub enum ValType {
 impl<'a> Parse<'a> for ValType {
     fn parse(parser: &mut Parser<'a>) -> Result<ValType> {
         Ok(match parser.parse::<u8>()? {
-            0 => ValType::String,
-            1 => ValType::S8,
-            2 => ValType::S16,
-            3 => ValType::S32,
-            4 => ValType::S64,
-            5 => ValType::U8,
-            6 => ValType::U16,
-            7 => ValType::U32,
-            8 => ValType::U64,
-            9 => ValType::F32,
-            10 => ValType::F64,
+            0 => ValType::S8,
+            1 => ValType::S16,
+            2 => ValType::S32,
+            3 => ValType::S64,
+            4 => ValType::U8,
+            5 => ValType::U16,
+            6 => ValType::U32,
+            7 => ValType::U64,
+            8 => ValType::F32,
+            9 => ValType::F64,
+            10 => ValType::String,
             n => return Err(parser.error(ErrorKind::InvalidValType(n))),
         })
     }

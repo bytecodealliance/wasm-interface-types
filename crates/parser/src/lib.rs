@@ -269,6 +269,9 @@ pub enum ValType {
     F32,
     F64,
     String,
+    Anyref,
+    I32,
+    I64,
 }
 
 impl<'a> Parse<'a> for ValType {
@@ -285,6 +288,9 @@ impl<'a> Parse<'a> for ValType {
             8 => ValType::F32,
             9 => ValType::F64,
             10 => ValType::String,
+            11 => ValType::Anyref,
+            12 => ValType::I32,
+            13 => ValType::I64,
             n => return Err(parser.error(ErrorKind::InvalidValType(n))),
         })
     }

@@ -226,8 +226,8 @@ impl<'a> Validator<'a> {
                     );
                 }
                 self.expect_interface(ValType::String, stack)?;
-                stack.push(ValType::S32);
-                stack.push(ValType::S32);
+                stack.push(ValType::I32);
+                stack.push(ValType::I32);
             }
             CallAdapter(idx) => {
                 let ty = self.validate_adapter_func_idx(idx)?;
@@ -514,20 +514,22 @@ impl<'a> Validator<'a> {
 
 fn tys_match(a: ValType, b: wasmparser::Type) -> bool {
     match (a, b) {
-        (ValType::S32, wasmparser::Type::I32)
-        | (ValType::S64, wasmparser::Type::I64)
+        (ValType::I32, wasmparser::Type::I32)
+        | (ValType::I64, wasmparser::Type::I64)
         | (ValType::F32, wasmparser::Type::F32)
-        | (ValType::F64, wasmparser::Type::F64) => true,
+        | (ValType::F64, wasmparser::Type::F64)
+        | (ValType::Anyref, wasmparser::Type::AnyRef) => true,
         _ => false,
     }
 }
 
 fn wasm2adapter(a: wasmparser::Type) -> Result<ValType> {
     Ok(match a {
-        wasmparser::Type::I32 => ValType::S32,
-        wasmparser::Type::I64 => ValType::S64,
+        wasmparser::Type::I32 => ValType::I32,
+        wasmparser::Type::I64 => ValType::I64,
         wasmparser::Type::F32 => ValType::F32,
         wasmparser::Type::F64 => ValType::F64,
+        wasmparser::Type::AnyRef => ValType::Anyref,
         _ => bail!("currently {:?} is not a valid wasm interface type", a),
     })
 }

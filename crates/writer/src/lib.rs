@@ -186,6 +186,9 @@ impl Type<'_> {
     pub fn f32(&mut self) { self.ty(0x08) }
     pub fn f64(&mut self) { self.ty(0x09) }
     pub fn string(&mut self) { self.ty(0x0a) }
+    pub fn anyref(&mut self) { self.ty(0x0b) }
+    pub fn i32(&mut self) { self.ty(0x0c) }
+    pub fn i64(&mut self) { self.ty(0x0d) }
 }
 
 /// Writer for the list of imports in an import subsection.

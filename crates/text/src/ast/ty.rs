@@ -59,10 +59,13 @@ impl<'a> Parse<'a> for Type<'a> {
 #[allow(missing_docs)]
 pub enum ValType {
     String,
+    Anyref,
     S8,
     S16,
     S32,
     S64,
+    I32,
+    I64,
     U8,
     U16,
     U32,
@@ -113,6 +116,18 @@ impl<'a> Parse<'a> for ValType {
         if l.peek::<kw::f64>() {
             parser.parse::<kw::f64>()?;
             return Ok(ValType::F64);
+        }
+        if l.peek::<kw::i32>() {
+            parser.parse::<kw::i32>()?;
+            return Ok(ValType::I32);
+        }
+        if l.peek::<kw::i64>() {
+            parser.parse::<kw::i64>()?;
+            return Ok(ValType::I64);
+        }
+        if l.peek::<kw::anyref>() {
+            parser.parse::<kw::anyref>()?;
+            return Ok(ValType::Anyref);
         }
         if l.peek::<kw::string>() {
             parser.parse::<kw::string>()?;

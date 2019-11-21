@@ -22,7 +22,7 @@ pub enum FuncKind {
     Local(Vec<Instruction>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Instruction {
     CallCore(walrus::FunctionId),
     DeferCallCore(walrus::FunctionId),

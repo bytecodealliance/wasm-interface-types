@@ -35,9 +35,10 @@ You'll likely want to pair this with the
 WebAssembly file. This crate only contains the ability to parse the contents of
 the binary WebAssembly Interface Types section.
 
-You should be able to get started with a [`Parser`] and parsing sections of the
-binary format. You can find more about the binary format [in some
-documentation](../../BINARY.md).
+You should be able to get started with a
+[`Parser`](https://docs.rs/wit-parser/*/wit_parser/struct.Parser.html) and
+parsing sections of the binary format. You can find more about the binary
+format [in some documentation](../../BINARY.md).
 
 ## License
 

@@ -1,5 +1,5 @@
-use crate::{FuncId, WasmInterfaceTypes, WitIdsToIndices, WitIndicesToIds};
 use crate::TypeId;
+use crate::{FuncId, WasmInterfaceTypes, WitIdsToIndices, WitIndicesToIds};
 use anyhow::Result;
 use id_arena::{Arena, Id};
 
@@ -46,12 +46,7 @@ impl WasmInterfaceTypes {
         }
     }
 
-    pub fn add_import_func(
-        &mut self,
-        module: &str,
-        name: &str,
-        ty: TypeId,
-    ) -> (FuncId, ImportId) {
+    pub fn add_import_func(&mut self, module: &str, name: &str, ty: TypeId) -> (FuncId, ImportId) {
         let func = self.funcs.add_import(ty, self.imports.arena.next_id());
         (func, self.imports.add(module, name, func))
     }

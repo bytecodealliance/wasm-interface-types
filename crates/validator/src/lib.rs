@@ -1,3 +1,11 @@
+//! A validator for the wasm interface types binary format.
+//!
+//! This crate currently only provides the ability to validate a full in-memory
+//! wasm module. It does not currently expose the results of typechecking, only
+//! if a wasm binary typechecks or not.
+
+#![deny(missing_docs)]
+
 use anyhow::{anyhow, bail, Context, Result};
 use std::collections::HashSet;
 use std::mem;
@@ -75,7 +83,7 @@ pub fn validate(bytes: &[u8]) -> Result<()> {
 /// This structure is used to visit *just* the wasm interface types subsection,
 /// if it's already been parsed out.
 #[derive(Default)]
-pub struct Validator<'a> {
+struct Validator<'a> {
     visited: bool,
     last_order: u8,
     memories: u32,
@@ -98,7 +106,7 @@ impl<'a> Validator<'a> {
     /// The `offset` given is the offset within the file that `bytes` was found
     /// at. This is purely used for error messages. The `bytes` given must be
     /// the entire contents of the wasm interface types section.
-    pub fn validate_wit_custom_section(&mut self, offset: usize, bytes: &'a [u8]) -> Result<()> {
+    fn validate_wit_custom_section(&mut self, offset: usize, bytes: &'a [u8]) -> Result<()> {
         if self.visited {
             bail!("found two `wasm-interface-types` custom sections");
         }

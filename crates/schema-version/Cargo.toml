@@ -3,6 +3,12 @@ name = "wit-schema-version"
 version = "0.1.0"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
 edition = "2018"
+license = "Apache-2.0 WITH LLVM-exception"
+repository = "https://github.com/bytecodealliance/wasm-interface-types"
+description = """
+Definition of the schema version for the wasm interface types binary format.
+Meant for internal usage only.
+"""
 
 [lib]
 test = false

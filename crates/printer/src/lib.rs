@@ -1,9 +1,23 @@
+//! A crate to print out the WebAssembly Interface Types textual format.
+//!
+//! This crate converts a full WebAssembly file to its textual format, including
+//! the necessary pieces to print out the WebAssembly Interface Types section,
+//! if present.
+
+#![deny(missing_docs)]
+
 use anyhow::Context;
 use std::fmt::Write;
 use std::path::Path;
 use wasmprinter::Printer;
 use wit_parser::*;
 
+/// Prints an entire wasm file to its textual representation, returning the
+/// in-memory `String` of the textual representation.
+///
+/// # Errors
+///
+/// Returns an error if the file cannot be read or it wasn't a valid wasm file.
 pub fn print_file(file: impl AsRef<Path>) -> anyhow::Result<String> {
     _print_file(file.as_ref())
 }
@@ -13,6 +27,12 @@ fn _print_file(file: &Path) -> anyhow::Result<String> {
     _print_bytes(&contents)
 }
 
+/// Prints an entire in-memory wasm module to its textual representation,
+/// returning the in-memory `String` of the textual representation.
+///
+/// # Errors
+///
+/// Returns an error if the bytes weren't a valid wasm blob.
 pub fn print_bytes(wasm: impl AsRef<[u8]>) -> anyhow::Result<String> {
     _print_bytes(wasm.as_ref())
 }

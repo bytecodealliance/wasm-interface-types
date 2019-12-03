@@ -206,7 +206,7 @@ impl<'a> Validator<'a> {
             }
             CallCore(idx) => {
                 let ty = self.validate_core_func_idx(idx)?.0;
-                for param in ty.params.iter() {
+                for param in ty.params.iter().rev() {
                     self.expect_wasm(*param, stack)?;
                 }
                 for result in ty.returns.iter() {
@@ -239,7 +239,7 @@ impl<'a> Validator<'a> {
             }
             CallAdapter(idx) => {
                 let ty = self.validate_adapter_func_idx(idx)?;
-                for param in ty.params.iter() {
+                for param in ty.params.iter().rev() {
                     self.expect_interface(*param, stack)?;
                 }
                 for result in ty.results.iter() {

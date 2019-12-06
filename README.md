@@ -22,10 +22,10 @@ out.
 
 Functionality provided by this project currently is:
 
-* `wit2wasm` - a converter from a textual format of wasm interface types to a
-  binary `*.wasm` module
+* `wat2wasm` - a converter from a textual format of wasm interface types to a
+  binary `*.wasm` module, including support for wasm interface types
 
-* `wasm2wit` - same as above, but the other way around. Takes a `*.wasm` module
+* `wasm2wat` - same as above, but the other way around. Takes a `*.wasm` module
   and prints out the `*.wat` file, including interface types annotations if
   there are any.
 
@@ -56,7 +56,7 @@ specification is in flux, use these tools appropriately!
 
 ## Tests
 
-The top-level `tests` directory contains a number of `*.wit` files which are
+The top-level `tests` directory contains a number of `*.wat` files which are
 intended to be various forms of tests for the wasm interface types proposal.
 They're annotated at the top with things like `;; parse-fail` or `;;
 validate-fail` if they're expected to be invalid, otherwise the comment at the

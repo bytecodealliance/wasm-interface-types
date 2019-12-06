@@ -14,13 +14,7 @@ fn main() {
 fn run(path: &Path) -> Result<String> {
     let test = Test::read_from(path)?;
 
-    // Parse either as a `*.wat` file or a `*.wit` file, depending on the
-    // extension.
-    let binary = if path.extension().and_then(|s| s.to_str()) == Some("wat") {
-        wat::parse_file(path).map_err(|e| e.into())
-    } else {
-        wit_text::parse_file(path)
-    };
+    let binary = wit_text::parse_file(path);
 
     // Extract the binary bytes, handling `parse-fail` directives here
     let binary = match binary {

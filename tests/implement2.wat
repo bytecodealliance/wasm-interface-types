@@ -6,7 +6,7 @@
 
 (; CHECK-ALL:
 import of `` from `` not found in core module
-     --> tests/implement2.wit:5:15
+     --> tests/implement2.wat:5:15
       |
     5 |   (@interface implement (import "" "") (func 1)))
       |               ^

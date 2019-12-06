@@ -1,18 +1,18 @@
 use crate::ast::{self, kw};
 use wast::parser::{Parse, Parser, Result};
 
-/// A `*.wit` file in its entirety.
+/// A `*.wat` file in its entirety, including wasm interface types.
 ///
 /// This is typically what you're parsing at the top-level.
-pub struct Wit<'a> {
-    /// The module that this `*.wit` file contained.
+pub struct Wat<'a> {
+    /// The module that this `*.wat` file contained.
     pub module: Module<'a>,
 }
 
-impl<'a> Parse<'a> for Wit<'a> {
+impl<'a> Parse<'a> for Wat<'a> {
     fn parse(parser: Parser<'a>) -> Result<Self> {
         let module = parser.parens(|parser| parser.parse())?;
-        Ok(Wit { module })
+        Ok(Wat { module })
     }
 }
 
@@ -42,6 +42,15 @@ impl Module<'_> {
 
 impl<'a> Parse<'a> for Module<'a> {
     fn parse(parser: Parser<'a>) -> Result<Module<'a>> {
+        // Parse `(module binary ...)` here, noting that we don't parse the
+        // binary itself when looking for wasm adapters.
+        if parser.peek2::<kw::binary>() {
+            return Ok(Module {
+                core: parser.parse()?,
+                adapters: Vec::new(),
+            })
+        }
+
         let span = parser.parse::<kw::module>()?.0;
         let name = parser.parse()?;
         let mut fields = Vec::new();

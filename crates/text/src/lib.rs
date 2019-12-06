@@ -21,7 +21,7 @@ pub use ast::*;
 /// Parses a `file` on the filesystem as a textual representation of WebAssembly
 /// Interface Types, returning the binary representation of the module.
 ///
-/// Note that the `file` could either be a valid `*.wit`, `*.wat`, or `*.wasm`
+/// Note that the `file` could either be a valid `*.wat` or `*.wasm`
 /// file. In the `*.wasm` case the bytes are passed through unmodified.
 ///
 /// # Errors
@@ -50,10 +50,10 @@ fn _parse_file(file: &Path) -> anyhow::Result<Vec<u8>> {
 /// This function will attempt to interpret the given bytes as one of two
 /// options:
 ///
-/// * A utf-8 string which is a `*.wit` file to be parsed.
+/// * A utf-8 string which is a `*.wat` file to be parsed.
 /// * A binary WebAssembly file starting with `b"\0asm"`
 ///
-/// If the input is a string then it will be parsed as `*.wit`, and then after
+/// If the input is a string then it will be parsed as `*.wat`, and then after
 /// parsing it will be encoded back into a WebAssembly binary module. If the
 /// input is a binary that starts with `b"\0asm"` it will be returned verbatim.
 /// Everything that doesn't start with `b"\0asm"` will be parsed as a utf-8
@@ -79,7 +79,7 @@ pub fn parse_bytes(bytes: &[u8]) -> anyhow::Result<Cow<'_, [u8]>> {
 /// binary WebAssembly file.
 ///
 /// This function is intended to be a stable convenience function for parsing a
-/// `*.wit` file into a WebAssembly binary. This is a high-level operation which
+/// `*.wat` file into a WebAssembly binary. This is a high-level operation which
 /// does not expose any parsing internals, for that you'll want to use the
 /// [`Module`] type and the `wast` crate.
 ///
@@ -88,13 +88,13 @@ pub fn parse_bytes(bytes: &[u8]) -> anyhow::Result<Cow<'_, [u8]>> {
 /// This function can fail for a number of reasons, including (but not limited
 /// to):
 ///
-/// * The `wit` input may fail to lex, such as having invalid tokens or syntax
-/// * The `wit` input may fail to parse, such as having incorrect syntactical
+/// * The `wat` input may fail to lex, such as having invalid tokens or syntax
+/// * The `wat` input may fail to parse, such as having incorrect syntactical
 ///   structure
-/// * The `wit` input may contain names that could not be resolved
+/// * The `wat` input may contain names that could not be resolved
 ///
-pub fn parse_str(wit: impl AsRef<str>) -> Result<Vec<u8>, wast::Error> {
-    _parse_str(wit.as_ref())
+pub fn parse_str(wat: impl AsRef<str>) -> Result<Vec<u8>, wast::Error> {
+    _parse_str(wat.as_ref())
 }
 
 fn _parse_str(wat: &str) -> Result<Vec<u8>, wast::Error> {
@@ -103,6 +103,6 @@ fn _parse_str(wat: &str) -> Result<Vec<u8>, wast::Error> {
         err
     };
     let buf = ParseBuffer::new(&wat).map_err(adjust)?;
-    let mut ast = wast::parser::parse::<Wit>(&buf).map_err(adjust)?;
+    let mut ast = wast::parser::parse::<Wat>(&buf).map_err(adjust)?;
     ast.module.encode().map_err(adjust)
 }

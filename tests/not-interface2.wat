@@ -6,7 +6,7 @@
 
 (; CHECK-ALL:
 unexpected token, expected one of: `type`, `import`, `export`, `func`, `implement`
-     --> tests/not-interface2.wit:5:15
+     --> tests/not-interface2.wat:5:15
       |
     5 |   (@interface foo))
       |               ^

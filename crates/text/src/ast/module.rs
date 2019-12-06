@@ -11,7 +11,11 @@ pub struct Wat<'a> {
 
 impl<'a> Parse<'a> for Wat<'a> {
     fn parse(parser: Parser<'a>) -> Result<Self> {
-        let module = parser.parens(|parser| parser.parse())?;
+        let module = if !parser.peek2::<kw::module>() {
+            parse_text_module(parser.cur_span(), None, parser)?
+        } else {
+            parser.parens(|parser| parser.parse())?
+        };
         Ok(Wat { module })
     }
 }
@@ -48,32 +52,40 @@ impl<'a> Parse<'a> for Module<'a> {
             return Ok(Module {
                 core: parser.parse()?,
                 adapters: Vec::new(),
-            })
+            });
         }
 
         let span = parser.parse::<kw::module>()?.0;
         let name = parser.parse()?;
-        let mut fields = Vec::new();
-        let mut adapters = Vec::new();
-        while !parser.is_empty() {
-            parser.parens(|parser| {
-                if parser.peek::<ast::AtInterface>() {
-                    adapters.push(parser.parse()?);
-                } else {
-                    fields.push(parser.parse()?);
-                }
-                Ok(())
-            })?;
-        }
-        Ok(Module {
-            core: wast::Module {
-                span,
-                name,
-                kind: wast::ModuleKind::Text(fields),
-            },
-            adapters,
-        })
+        parse_text_module(span, name, parser)
     }
+}
+
+fn parse_text_module<'a>(
+    span: wast::Span,
+    name: Option<wast::Id<'a>>,
+    parser: Parser<'a>,
+) -> Result<Module<'a>> {
+    let mut fields = Vec::new();
+    let mut adapters = Vec::new();
+    while !parser.is_empty() {
+        parser.parens(|parser| {
+            if parser.peek::<ast::AtInterface>() {
+                adapters.push(parser.parse()?);
+            } else {
+                fields.push(parser.parse()?);
+            }
+            Ok(())
+        })?;
+    }
+    Ok(Module {
+        core: wast::Module {
+            span,
+            name,
+            kind: wast::ModuleKind::Text(fields),
+        },
+        adapters,
+    })
 }
 
 /// List of possible `@interface` adapters that can be listed in a module.

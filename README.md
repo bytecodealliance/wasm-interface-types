@@ -4,7 +4,7 @@
 <strong>A <a href="https://bytecodealliance.org/">Bytecode Alliance</a> project</strong>
 
   <p>
-    <strong>A Rust toolkit for working with <a href="https://github.com/webassembly/interface-types">WebAssembly Interface Tyeps</a>.</strong>
+    <strong>A Rust toolkit for working with <a href="https://github.com/webassembly/interface-types">WebAssembly Interface Types</a>.</strong>
   </p>
 </div>
 

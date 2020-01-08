@@ -478,6 +478,7 @@ macro_rules! instructions {
         /// Operators that can be found in the body of a function in a wasm
         /// interface types section.
         #[allow(missing_docs)]
+        #[derive(Debug)]
         pub enum Instruction {
             $(
                 $name $(( $($arg)* ))?,
@@ -565,6 +566,7 @@ instructions! {
 }
 
 /// Payload of the `string-to-memory` instruction
+#[derive(Debug)]
 pub struct StringToMemory {
     /// Function in the core module being used to allocate memory in `mem` to
     /// place a string into. Must take one `i32` parameter and return one `i32`

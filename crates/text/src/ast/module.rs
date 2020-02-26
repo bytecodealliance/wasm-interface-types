@@ -1,4 +1,4 @@
-use crate::ast::{self, kw, annotation};
+use crate::ast::{self, annotation, kw};
 use wast::parser::{Parse, Parser, Result};
 
 /// A `*.wat` file in its entirety, including wasm interface types.

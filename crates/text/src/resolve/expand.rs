@@ -113,12 +113,12 @@ impl<'a> Expander<'a> {
         span: wast::Span,
         core: &[wast::ModuleField<'_>],
         module: &str,
-        name: &str,
+        field: &str,
     ) -> Result<u32, Error> {
         let mut idx = 0;
         let mut ret = None;
-        for field in core {
-            let i = match field {
+        for entry in core {
+            let i = match entry {
                 wast::ModuleField::Import(i) => i,
                 _ => continue,
             };
@@ -127,14 +127,14 @@ impl<'a> Expander<'a> {
                 _ => continue,
             }
             idx += 1;
-            if i.module != module || i.name != name {
+            if i.module != module || i.field != field {
                 continue;
             }
             if ret.is_some() {
                 let msg = format!(
                     "import of `{}` from `{}` is ambiguous since \
                      it's listed twice in the core module",
-                    module, name
+                    module, field
                 );
                 return Err(Error::new(span, msg));
             }
@@ -146,7 +146,7 @@ impl<'a> Expander<'a> {
             None => {
                 let msg = format!(
                     "import of `{}` from `{}` not found in core module",
-                    module, name
+                    module, field
                 );
                 Err(Error::new(span, msg))
             }

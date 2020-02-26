@@ -1,4 +1,4 @@
-use crate::ast::{self, kw};
+use crate::ast::{self, kw, annotation};
 use wast::parser::{Parse, Parser, Result};
 
 /// A `*.wat` file in its entirety, including wasm interface types.
@@ -12,7 +12,7 @@ pub struct Wat<'a> {
 impl<'a> Parse<'a> for Wat<'a> {
     fn parse(parser: Parser<'a>) -> Result<Self> {
         let module = if !parser.peek2::<kw::module>() {
-            parse_text_module(parser.cur_span(), None, parser)?
+            parse_text_module(parser.cur_span(), None, None, parser)?
         } else {
             parser.parens(|parser| parser.parse())?
         };
@@ -57,20 +57,25 @@ impl<'a> Parse<'a> for Module<'a> {
 
         let span = parser.parse::<kw::module>()?.0;
         let name = parser.parse()?;
-        parse_text_module(span, name, parser)
+        let annotation = parser.parse()?;
+        parse_text_module(span, name, annotation, parser)
     }
 }
 
 fn parse_text_module<'a>(
     span: wast::Span,
-    name: Option<wast::Id<'a>>,
+    id: Option<wast::Id<'a>>,
+    name: Option<wast::NameAnnotation<'a>>,
     parser: Parser<'a>,
 ) -> Result<Module<'a>> {
+    let _r = parser.register_annotation("custom");
+    let _r = parser.register_annotation("interface");
+
     let mut fields = Vec::new();
     let mut adapters = Vec::new();
     while !parser.is_empty() {
         parser.parens(|parser| {
-            if parser.peek::<ast::AtInterface>() {
+            if parser.peek::<annotation::interface>() {
                 adapters.push(parser.parse()?);
             } else {
                 fields.push(parser.parse()?);
@@ -81,6 +86,7 @@ fn parse_text_module<'a>(
     Ok(Module {
         core: wast::Module {
             span,
+            id,
             name,
             kind: wast::ModuleKind::Text(fields),
         },
@@ -104,7 +110,7 @@ pub enum Adapter<'a> {
 
 impl<'a> Parse<'a> for Adapter<'a> {
     fn parse(parser: Parser<'a>) -> Result<Adapter<'a>> {
-        parser.parse::<ast::AtInterface>()?;
+        parser.parse::<annotation::interface>()?;
         let mut l = parser.lookahead1();
         if l.peek::<kw::r#type>() {
             return Ok(Adapter::Type(parser.parse()?));

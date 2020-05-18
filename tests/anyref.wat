@@ -11,8 +11,8 @@
 
 (; CHECK-ALL:
 (module
-  (type (;0;) (func (param anyref)))
-  (func $take_anyref (type 0) (param anyref))
+  (type (;0;) (func (param externref)))
+  (func $take_anyref (type 0) (param externref))
   (@interface type (;0;) (func (param anyref)))
   (@interface type (;1;) (func (result anyref)))
   (@interface type (;2;) (func))

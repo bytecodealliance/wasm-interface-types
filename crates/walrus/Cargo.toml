@@ -1,6 +1,6 @@
 [package]
 name = "wit-walrus"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
 edition = "2018"
 license = "Apache-2.0 WITH LLVM-exception"
@@ -13,7 +13,7 @@ Extension for the `walrus` crate to work with WebAssembly interface types.
 [dependencies]
 anyhow = "1.0"
 id-arena = "2"
-walrus = "0.16"
+walrus = "0.17"
 wit-parser = { path = "../parser", version = "0.1.0" }
 wit-schema-version = { path = "../schema-version", version = "0.1.0" }
 wit-writer = { path = "../writer", version = "0.1.0" }

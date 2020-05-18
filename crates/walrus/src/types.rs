@@ -29,7 +29,7 @@ pub enum ValType {
     F32,
     F64,
     String,
-    Anyref,
+    Externref,
     I32,
     I64,
 }
@@ -84,7 +84,7 @@ impl WasmInterfaceTypes {
                 ValType::F32 => w.f32(),
                 ValType::F64 => w.f64(),
                 ValType::String => w.string(),
-                ValType::Anyref => w.anyref(),
+                ValType::Externref => w.externref(),
                 ValType::I32 => w.i32(),
                 ValType::I64 => w.i64(),
             }
@@ -105,7 +105,7 @@ fn parse2walrus(parse: wit_parser::ValType) -> ValType {
         wit_parser::ValType::F32 => ValType::F32,
         wit_parser::ValType::F64 => ValType::F64,
         wit_parser::ValType::String => ValType::String,
-        wit_parser::ValType::Anyref => ValType::Anyref,
+        wit_parser::ValType::Externref => ValType::Externref,
         wit_parser::ValType::I32 => ValType::I32,
         wit_parser::ValType::I64 => ValType::I64,
     }

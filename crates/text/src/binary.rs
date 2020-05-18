@@ -167,7 +167,7 @@ fn write_ty(w: &mut wit_writer::Type<'_>, ty: &ValType) {
         ValType::F32 => w.f32(),
         ValType::F64 => w.f64(),
         ValType::String => w.string(),
-        ValType::Anyref => w.anyref(),
+        ValType::Externref => w.externref(),
         ValType::I32 => w.i32(),
         ValType::I64 => w.i64(),
     }

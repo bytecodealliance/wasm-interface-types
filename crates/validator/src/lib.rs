@@ -526,7 +526,7 @@ fn tys_match(a: ValType, b: wasmparser::Type) -> bool {
         | (ValType::I64, wasmparser::Type::I64)
         | (ValType::F32, wasmparser::Type::F32)
         | (ValType::F64, wasmparser::Type::F64)
-        | (ValType::Anyref, wasmparser::Type::ExternRef) => true,
+        | (ValType::Externref, wasmparser::Type::ExternRef) => true,
         _ => false,
     }
 }
@@ -537,7 +537,7 @@ fn wasm2adapter(a: wasmparser::Type) -> Result<ValType> {
         wasmparser::Type::I64 => ValType::I64,
         wasmparser::Type::F32 => ValType::F32,
         wasmparser::Type::F64 => ValType::F64,
-        wasmparser::Type::ExternRef => ValType::Anyref,
+        wasmparser::Type::ExternRef => ValType::Externref,
         _ => bail!("currently {:?} is not a valid wasm interface type", a),
     })
 }

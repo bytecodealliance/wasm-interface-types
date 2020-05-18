@@ -13,8 +13,8 @@
 (module
   (type (;0;) (func (param externref)))
   (func $take_anyref (type 0) (param externref))
-  (@interface type (;0;) (func (param anyref)))
-  (@interface type (;1;) (func (result anyref)))
+  (@interface type (;0;) (func (param externref)))
+  (@interface type (;1;) (func (result externref)))
   (@interface type (;2;) (func))
   (@interface import "" "" (func (;0;) (type 1)))
   (@interface func (;1;) (type 0))

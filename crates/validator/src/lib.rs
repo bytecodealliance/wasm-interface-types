@@ -9,7 +9,7 @@
 use anyhow::{anyhow, bail, Context, Result};
 use std::collections::HashSet;
 use std::mem;
-use wasmparser::{FuncType, ImportSectionEntryType, ModuleReader, SectionCode};
+use wasmparser::{FuncType, ImportSectionEntryType, Payload, TypeDef};
 use wit_parser::*;
 
 /// Validates an entire WebAssembly module listed by `bytes`
@@ -20,20 +20,18 @@ use wit_parser::*;
 /// the module as needed. For example core wasm functions aren't typechecked
 /// here.
 pub fn validate(bytes: &[u8]) -> Result<()> {
-    let mut printer = ModuleReader::new(bytes)?;
     let mut validator = Validator::default();
-    while !printer.eof() {
-        let section = printer.read()?;
-        match section.code {
-            SectionCode::Type => {
-                let s = section.get_type_section_reader()?;
+    for payload in wasmparser::Parser::new(0).parse_all(bytes) {
+        match payload? {
+            Payload::TypeSection(s) => {
                 validator.validate_section(1, "type", s, |v, ty| {
-                    v.core_types.push(ty);
+                    if let TypeDef::Func(ty) = ty {
+                        v.core_types.push(ty);
+                    }
                     Ok(())
                 })?;
             }
-            SectionCode::Import => {
-                let s = section.get_import_section_reader()?;
+            Payload::ImportSection(s) => {
                 validator.validate_section(2, "import", s, |v, ty| {
                     match ty.ty {
                         ImportSectionEntryType::Function(ty) => {
@@ -48,28 +46,26 @@ pub fn validate(bytes: &[u8]) -> Result<()> {
                     Ok(())
                 })?;
             }
-            SectionCode::Function => {
-                let s = section.get_function_section_reader()?;
+            Payload::FunctionSection(s) => {
                 validator.validate_section(3, "function", s, |v, ty| {
                     v.validate_core_type_idx(ty)?;
                     v.core_funcs.push((ty, CoreFunc::Local));
                     Ok(())
                 })?;
             }
-            SectionCode::Memory => {
-                let s = section.get_memory_section_reader()?;
+            Payload::MemorySection(s) => {
                 validator.validate_section(4, "memory", s, |v, _| {
                     v.memories += 1;
                     Ok(())
                 })?;
             }
-            SectionCode::Custom {
+            Payload::CustomSection {
                 name: wit_schema_version::SECTION_NAME,
-                ..
+                data,
+                data_offset,
             } => {
-                let range = section.range();
                 validator
-                    .validate_wit_custom_section(range.start, &bytes[range.start..range.end])
+                    .validate_wit_custom_section(data_offset, data)
                     .context("failed to validate interface types section")?;
             }
             _ => {}

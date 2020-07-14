@@ -1,4 +1,5 @@
 use wast::parser::{Parse, Parser, Result};
+use wast::Span;
 
 macro_rules! instructions {
     ($(#[$a:meta])* pub enum Instruction<'a> {
@@ -106,7 +107,9 @@ pub struct MemoryToString<'a> {
 impl<'a> Parse<'a> for MemoryToString<'a> {
     fn parse(parser: Parser<'a>) -> Result<Self> {
         Ok(MemoryToString {
-            mem: parser.parse::<Option<_>>()?.unwrap_or(wast::Index::Num(0)),
+            mem: parser
+                .parse::<Option<_>>()?
+                .unwrap_or(wast::Index::Num(0, Span::from_offset(0))),
         })
     }
 }
@@ -124,7 +127,9 @@ impl<'a> Parse<'a> for StringToMemory<'a> {
     fn parse(parser: Parser<'a>) -> Result<Self> {
         Ok(StringToMemory {
             malloc: parser.parse()?,
-            mem: parser.parse::<Option<_>>()?.unwrap_or(wast::Index::Num(0)),
+            mem: parser
+                .parse::<Option<_>>()?
+                .unwrap_or(wast::Index::Num(0, Span::from_offset(0))),
         })
     }
 }

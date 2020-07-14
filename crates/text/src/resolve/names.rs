@@ -167,11 +167,11 @@ impl<'a> Namespace<'a> {
 
     fn resolve(&self, idx: &mut Index<'a>) -> Result<u32, Id<'a>> {
         let id = match idx {
-            Index::Num(n) => return Ok(*n),
+            Index::Num(n, _) => return Ok(*n),
             Index::Id(id) => id,
         };
         if let Some(&n) = self.names.get(id) {
-            *idx = Index::Num(n);
+            *idx = Index::Num(n, id.span());
             return Ok(n);
         }
         Err(*id)

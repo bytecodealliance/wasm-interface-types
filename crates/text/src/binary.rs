@@ -149,7 +149,7 @@ pub fn append(adapters: &[Adapter<'_>], wasm: &mut Vec<u8>) {
 
 fn get_num(idx: &wast::Index<'_>) -> u32 {
     match idx {
-        wast::Index::Num(n) => *n,
+        wast::Index::Num(n, _) => *n,
         wast::Index::Id(s) => panic!("unresolved name: {}", s.name()),
     }
 }

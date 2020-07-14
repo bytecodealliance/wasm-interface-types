@@ -36,7 +36,7 @@ impl<'a> Expander<'a> {
                 if let Some(name) = f.export.take() {
                     self.to_append.push(Adapter::Export(Export {
                         name,
-                        func: Index::Num(self.funcs),
+                        func: Index::Num(self.funcs, f.span),
                     }));
                 }
                 *item = Adapter::Import(Import {
@@ -66,7 +66,7 @@ impl<'a> Expander<'a> {
                 if let Some(name) = f.export.take() {
                     self.to_append.push(Adapter::Export(Export {
                         name,
-                        func: Index::Num(self.funcs),
+                        func: Index::Num(self.funcs, f.span),
                     }));
                 }
                 self.funcs += 1;
@@ -78,12 +78,12 @@ impl<'a> Expander<'a> {
                 // switch it to `ByIndex`.
                 if let Implemented::ByName { module, name } = i.implemented {
                     let idx = self.find_func_index(i.span, core, module, name)?;
-                    i.implemented = Implemented::ByIndex(wast::Index::Num(idx));
+                    i.implemented = Implemented::ByIndex(wast::Index::Num(idx, i.span));
                 }
 
                 // If we have an inline function declaration, then move this
                 // function declaration into its own item.
-                let tmp = Implementation::ByIndex(wast::Index::Num(self.funcs));
+                let tmp = Implementation::ByIndex(wast::Index::Num(self.funcs, i.span));
                 match mem::replace(&mut i.implementation, tmp) {
                     Implementation::Inline { ty, instrs } => {
                         self.to_append.push(Adapter::Func(Func {
@@ -122,12 +122,12 @@ impl<'a> Expander<'a> {
                 wast::ModuleField::Import(i) => i,
                 _ => continue,
             };
-            match i.kind {
-                wast::ImportKind::Func(_) => {}
+            match i.item.kind {
+                wast::ItemKind::Func(_) => {}
                 _ => continue,
             }
             idx += 1;
-            if i.module != module || i.field != field {
+            if i.module != module || i.field != Some(field) {
                 continue;
             }
             if ret.is_some() {

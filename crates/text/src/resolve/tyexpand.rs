@@ -1,6 +1,6 @@
 use crate::ast::*;
 use std::collections::HashMap;
-use wast::Index;
+use wast::{Index, Span};
 
 #[derive(Default)]
 pub struct Expander<'a> {
@@ -47,10 +47,13 @@ impl<'a> Expander<'a> {
             return;
         }
         let key = self.key(&item.ty);
-        item.index = Some(Index::Num(match self.types.get(&key) {
-            Some(i) => *i,
-            None => self.prepend(key),
-        }));
+        item.index = Some(Index::Num(
+            match self.types.get(&key) {
+                Some(i) => *i,
+                None => self.prepend(key),
+            },
+            Span::from_offset(0),
+        ));
     }
 
     fn key(&self, ty: &Type<'_>) -> (Vec<ValType>, Vec<ValType>) {

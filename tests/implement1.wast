@@ -1,13 +1,12 @@
 ;; parse-fail
 
 (module
-  (import "" "" (global i32))
   (@interface implement (import "" "") (func 1)))
 
 (; CHECK-ALL:
 import of `` from `` not found in core module
-     --> tests/implement2.wat:5:15
+     --> tests/implement1.wast:4:15
       |
-    5 |   (@interface implement (import "" "") (func 1)))
+    4 |   (@interface implement (import "" "") (func 1)))
       |               ^
 ;)

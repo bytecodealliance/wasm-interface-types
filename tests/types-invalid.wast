@@ -5,7 +5,7 @@
 
 (; CHECK-ALL:
 expected `(`
-     --> tests/types-invalid.wat:4:20
+     --> tests/types-invalid.wast:4:20
       |
     4 |   (@interface type foo))
       |                    ^

@@ -4,7 +4,7 @@ x
 
 (; CHECK-ALL:
 expected `(`
-     --> tests/not-interface.wat:3:1
+     --> tests/not-interface.wast:3:1
       |
     3 | x
       | ^

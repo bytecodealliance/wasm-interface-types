@@ -5,7 +5,7 @@
 
 (; CHECK-ALL:
 expected keyword `func`
-     --> tests/types-wrong-order.wat:4:21
+     --> tests/types-wrong-order.wast:4:21
       |
     4 |   (@interface type (result s8) (param u8)))
       |                     ^

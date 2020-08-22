@@ -13,7 +13,7 @@
 
 (; CHECK-ALL:
 failed to find memory named `$mem`
-     --> tests/bad-memory-to-string.wat:10:22
+     --> tests/bad-memory-to-string.wast:10:22
       |
    10 |     memory-to-string $mem
       |                      ^

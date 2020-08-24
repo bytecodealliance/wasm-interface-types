@@ -19,7 +19,7 @@ wit-writer = { path = "../writer", version = "0.2.0" }
 getopts = "0.2"
 test-helpers = { path = "../test-helpers" }
 walrus = "0.18.0"
-wasmparser = "0.61"
+wasmparser = "0.62"
 wat = "1.0.10"
 wit-parser = { path = "../parser" }
 wit-printer = { path = "../printer" }

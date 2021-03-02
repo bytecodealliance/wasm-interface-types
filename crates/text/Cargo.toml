@@ -12,7 +12,7 @@ Parser for the text format of WebAssembly Interface Types
 
 [dependencies]
 anyhow = "1.0"
-wast = "22.0"
+wast = "35.0"
 wit-writer = { path = "../writer", version = "0.2.0" }
 
 [dev-dependencies]

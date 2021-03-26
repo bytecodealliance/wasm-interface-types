@@ -12,6 +12,6 @@ Validator for the WebAssembly Interface Types binary format.
 
 [dependencies]
 anyhow = "1.0"
-wasmparser = "0.61"
+wasmparser = "0.77"
 wit-parser = { path = "../parser", version = "0.2.0" }
 wit-schema-version = { path = "../schema-version", version = "0.1.0" }

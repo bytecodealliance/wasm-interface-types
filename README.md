@@ -8,6 +8,10 @@
   </p>
 </div>
 
+> **Note**: This repository is now archived. The interface types proposal has
+> changed quite a lot since this was first implemented and the trajectory of the
+> proposal and the implementation within wasmtime no longer aligns with this
+> repository.
 
 ## About
 
